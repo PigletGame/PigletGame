@@ -6,19 +6,25 @@
 //
 
 import SwiftUI
+import SpriteKit
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        SKViewContainer()
+            .ignoresSafeArea()
+            .statusBarHidden()
     }
 }
 
-#Preview {
-    ContentView()
+struct SKViewContainer: UIViewRepresentable {
+    func makeUIView(context: Context) -> SKView {
+        let view = SKView()
+        view.ignoresSiblingOrder = true
+        view.isMultipleTouchEnabled = true
+        let scene = MenuScene()
+        scene.scaleMode = .resizeFill
+        view.presentScene(scene)
+        return view
+    }
+    func updateUIView(_ uiView: SKView, context: Context) {}
 }
