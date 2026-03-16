@@ -39,10 +39,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var killLabel: SKLabelNode!
     private var scoreLabel: SKLabelNode!
     private var heartNodes: [SKShapeNode] = []
+    private var pauseMenu: Pause!
 
     // ––––– Scoring –––––
     private var score = 0
     private var killCount = 0
+    private var collectedCoins = 0
 
     // ––––– Timing –––––
     private var elapsedTime: TimeInterval = 0
@@ -77,6 +79,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupPlayer()
         setupHUD()
         setupJoysticks()
+        setupPauseMenu()
     }
 
     // MARK: – Setup
@@ -144,8 +147,48 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         scoreLabel.position = CGPoint(x: size.width - 16, y: size.height - 28)
         addChild(scoreLabel)
 
+        let pauseButton = SKShapeNode(circleOfRadius: 16)
+        pauseButton.fillColor = SKColor(red: 0.14, green: 0.14, blue: 0.16, alpha: 1)
+        pauseButton.strokeColor = SKColor(white: 1, alpha: 0.45)
+        pauseButton.lineWidth = 1.5
+        pauseButton.position = CGPoint(x: size.width / 2, y: size.height - 20)
+        pauseButton.zPosition = 96
+        pauseButton.name = "pauseButton"
+
+        let leftBar = SKShapeNode(rectOf: CGSize(width: 3, height: 10))
+        leftBar.fillColor = .white
+        leftBar.strokeColor = .clear
+        leftBar.position = CGPoint(x: -4, y: 0)
+        leftBar.name = "pauseButton"
+        pauseButton.addChild(leftBar)
+
+        let rightBar = SKShapeNode(rectOf: CGSize(width: 3, height: 10))
+        rightBar.fillColor = .white
+        rightBar.strokeColor = .clear
+        rightBar.position = CGPoint(x: 4, y: 0)
+        rightBar.name = "pauseButton"
+        pauseButton.addChild(rightBar)
+
+        addChild(pauseButton)
+
         refreshHUD()
         refreshHearts()
+    }
+
+    private func setupPauseMenu() {
+        pauseMenu = Pause(size: size)
+        pauseMenu.position = CGPoint(x: size.width / 2, y: size.height / 2)
+        pauseMenu.onEndedPauseAction = { [weak self] in
+            self?.resetTouchInputs()
+        }
+        addChild(pauseMenu)
+    }
+
+    private func resetTouchInputs() {
+        leftTouch = nil
+        rightTouch = nil
+        leftJoystick.reset()
+        rightJoystick.reset()
     }
 
     private func makeHUDLabel(align: SKLabelHorizontalAlignmentMode) -> SKLabelNode {
@@ -214,6 +257,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: – Touch
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if isGameOver || pauseMenu.isPauseActive { return }
+
+        if let touch = touches.first {
+            let location = touch.location(in: self)
+            if nodes(at: location).contains(where: { $0.name == "pauseButton" }) {
+                resetTouchInputs()
+                pauseMenu.pauseGame()
+                return
+            }
+        }
+
         for touch in touches {
             let loc = touch.location(in: self)
             if loc.x < size.width / 2 {
@@ -704,6 +758,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: – Collect
 
     private func collectCoin(at pos: CGPoint) {
+        collectedCoins += 1
         score += 5
         refreshHUD()
         floatText("+5", at: pos, color: SKColor(red: 1, green: 0.85, blue: 0.1, alpha: 1))
@@ -826,7 +881,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     private func triggerGameOver() {
         isGameOver = true
+        pauseMenu.resumeGame()
         physicsWorld.speed = 0
+        _ = GameDataStore.shared.recordRun(collectedCoins: collectedCoins, kills: killCount)
 
         // Dramatic pause then transition
         run(SKAction.sequence([
@@ -834,6 +891,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             SKAction.run { [weak self] in
                 guard let self else { return }
                 let scene = GameOverScene(score: self.score,
+                                         coins: self.collectedCoins,
                                          kills: self.killCount,
                                          time: Int(self.elapsedTime))
                 scene.scaleMode = .resizeFill
