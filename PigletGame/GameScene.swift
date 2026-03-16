@@ -68,7 +68,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var isGameOver = false
 
     // MARK: – Lifecycle
-
     override func didMove(to view: SKView) {
         AdCoordinator.shared.loadAd()
         physicsWorld.gravity = .zero

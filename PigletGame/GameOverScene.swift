@@ -22,7 +22,6 @@ class GameOverScene: SKScene {
     }
 
     // MARK: – Background
-
     private func setupBackground() {
         for _ in 0..<40 {
             let p = SKShapeNode(circleOfRadius: CGFloat.random(in: 0.6...1.8))
@@ -154,13 +153,9 @@ class GameOverScene: SKScene {
             if node.name == "playAgain" {
 
                 AdCoordinator.shared.showAd {
-
-                    DispatchQueue.main.async {
-                        let scene = GameScene()
-                        scene.scaleMode = .resizeFill
-                        self.view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.45))
-                    }
-
+                    let scene = GameScene()
+                    scene.scaleMode = .resizeFill
+                    self.view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.45))
                 }
 
                 return
