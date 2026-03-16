@@ -1,8 +1,13 @@
 import SpriteKit
+import GameplayKit
 
-class GameScene: SKScene, SKPhysicsContactDelegate {
+class GameScene: SKScene {
 
-    // MARK: – Nodes
+    // MARK: – ECS & Nodes
+
+    let entityManager: EntityManager
+    let worldNode = SKNode()
+    let cameraNode = SKCameraNode()
 
     private var player: PlayerEntity!
     private var hud:    HUDNode!
@@ -15,7 +20,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var combatSystem:     CombatSystem!
     private var coinSystem:       CoinSystem!
     private var difficultySystem: DifficultySystem!
-    private var contactSystem:    ContactSystem!
 
     // MARK: – State
 
@@ -26,71 +30,108 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var scoreAccum:  TimeInterval = 0
     private var isGameOver   = false
 
-    // MARK: – Touch tracking
+    // map config
+    let tileWidth: CGFloat = 16
+    let mapWidthInTiles = 30
+    let mapHeightInTiles = 30
+    var mapSize: CGSize {
+        .init(width: (Double(mapWidthInTiles) * tileWidth), height: (Double(mapHeightInTiles) * tileWidth))
+    }
 
-    private var leftTouch:    UITouch?
-    private var rightTouch:   UITouch?
-    private var leftJoyOrigin:  CGPoint = .zero
-    private var rightJoyOrigin: CGPoint = .zero
+    override init() {
+        entityManager = .init(baseNode: worldNode)
+        super.init()
+    }
+
+    override init(size: CGSize) {
+        entityManager = .init(baseNode: worldNode)
+        super.init(size: size)
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     // MARK: – Lifecycle
 
     override func didMove(to view: SKView) {
-        physicsWorld.gravity         = .zero
-        physicsWorld.contactDelegate = self
-        backgroundColor = .black
+        backgroundColor = .darkGray
+        view.isMultipleTouchEnabled = true
 
-        setupArena()
+        addChild(worldNode)
+
+        self.camera = cameraNode
+        worldNode.addChild(cameraNode)
+        cameraNode.setScale(0.5)
+
+        setupLevel()
+        setupJoysticks()
         setupPlayer()
         setupHUD()
-        setupJoysticks()
         setupSystems()
     }
 
     // MARK: – Setup
 
-    private func setupArena() {
-        let bg = SKSpriteNode(imageNamed: "arena")
-        bg.position  = CGPoint(x: size.width / 2, y: size.height / 2)
-        bg.size      = size
-        bg.zPosition = -10
-        addChild(bg)
+    private func setupLevel() {
+        // Create the Floor
+        for x in 0..<mapWidthInTiles {
+            for y in 0..<mapHeightInTiles {
+                let grass = SKSpriteNode(imageNamed: "Tile/Grass/Middle")
+                grass.texture?.filteringMode = .nearest
+                grass.anchorPoint = .zero
+
+                let xPosition = CGFloat(x) * tileWidth
+                let yPosition = CGFloat(y) * tileWidth
+
+                grass.position = CGPoint(x: xPosition, y: yPosition)
+                grass.zPosition = -10
+                worldNode.addChild(grass)
+            }
+        }
     }
 
     private func setupPlayer() {
-        player          = PlayerEntity()
-        player.position = CGPoint(x: size.width / 2, y: size.height / 2)
-        addChild(player)
+        player = PlayerEntity(
+            position: CGPoint(x: mapSize.width / 2, y: mapSize.height / 2),
+            leftJoystick: leftJoystick,
+            rightJoystick: rightJoystick
+        ) { [weak self] pos, dir in
+            // handled by combatSystem or directly
+            self?.combatSystem.tryFirePlayerBullet(direction: dir, position: pos, at: CFAbsoluteTimeGetCurrent())
+        }
+        entityManager.addEntity(player)
     }
 
     private func setupHUD() {
         hud = HUDNode(sceneSize: size)
-        addChild(hud)
+        cameraNode.addChild(hud)
         refreshHUD()
     }
 
     private func setupJoysticks() {
-        let joyY: CGFloat = 80
+        leftJoystick = JoystickNode(side: .left)
+        leftJoystick.zPosition = 99
+        leftJoystick.position = .init(
+            x: -size.width / 2 + 100,
+            y: -size.height / 2 + 100
+        )
+        cameraNode.addChild(leftJoystick)
 
-        leftJoystick          = JoystickNode(baseRadius: 55, thumbRadius: 22)
-        leftJoystick.position = CGPoint(x: 110, y: joyY)
-        leftJoystick.zPosition = 50
-        leftJoystick.alpha    = 0.65
-        addChild(leftJoystick)
-
-        rightJoystick          = JoystickNode(baseRadius: 55, thumbRadius: 22)
-        rightJoystick.position = CGPoint(x: size.width - 110, y: joyY)
-        rightJoystick.zPosition = 50
-        rightJoystick.alpha    = 0.65
-        addChild(rightJoystick)
+        rightJoystick = JoystickNode(side: .right)
+        rightJoystick.zPosition = 99
+        rightJoystick.position = .init(
+            x: size.width / 2 - 100,
+            y: -size.height / 2 + 100
+        )
+        cameraNode.addChild(rightJoystick)
     }
 
     private func setupSystems() {
-        difficultySystem = DifficultySystem(scene: self)
-        spawnSystem      = SpawnSystem(scene: self)
+        difficultySystem = DifficultySystem(scene: cameraNode.scene!)
+        spawnSystem      = SpawnSystem(scene: self, mapSize: mapSize)
         combatSystem     = CombatSystem(scene: self, player: player)
         coinSystem       = CoinSystem(scene: self, player: player)
-        contactSystem    = ContactSystem()
     }
 
     // MARK: – HUD
@@ -102,66 +143,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                    hasShield: player.shield.isActive)
     }
 
-    // MARK: – Touch
-
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for touch in touches {
-            let loc = touch.location(in: self)
-            if loc.x < size.width / 2 {
-                guard leftTouch == nil else { continue }
-                leftTouch     = touch
-                leftJoyOrigin = loc
-                leftJoystick.position = loc
-                leftJoystick.reset()
-            } else {
-                guard rightTouch == nil else { continue }
-                rightTouch     = touch
-                rightJoyOrigin = loc
-                rightJoystick.position = loc
-                rightJoystick.reset()
-            }
-        }
-    }
-
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for touch in touches {
-            let loc = touch.location(in: self)
-            if touch === leftTouch {
-                leftJoystick.updateThumb(to: CGPoint(x: loc.x - leftJoyOrigin.x,
-                                                      y: loc.y - leftJoyOrigin.y))
-            } else if touch === rightTouch {
-                rightJoystick.updateThumb(to: CGPoint(x: loc.x - rightJoyOrigin.x,
-                                                       y: loc.y - rightJoyOrigin.y))
-            }
-        }
-    }
-
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for touch in touches {
-            if touch === leftTouch  { leftTouch  = nil; leftJoystick.reset() }
-            if touch === rightTouch { rightTouch = nil; rightJoystick.reset() }
-        }
-    }
-
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        touchesEnded(touches, with: event)
-    }
-
     // MARK: – Update Loop
 
     override func update(_ currentTime: TimeInterval) {
         guard !isGameOver else { return }
 
-        let dt: CGFloat = lastUpdateTime == 0
-            ? 0
-            : min(currentTime - lastUpdateTime, 0.05)
+        if lastUpdateTime == 0 { lastUpdateTime = currentTime }
+        let dt = currentTime - lastUpdateTime
         lastUpdateTime = currentTime
         elapsedTime   += dt
 
-        // Flush removals pendentes do frame anterior
-        contactSystem.flushRemovals()
+        entityManager.update(deltaTime: dt)
 
-        // Score por sobrevivência
+        if let posComponent = player.component(ofType: PositionComponent.self) {
+            posComponent.clamp(to: CGRect(origin: .zero, size: mapSize))
+            cameraNode.position = posComponent.position
+        }
+
         scoreAccum += dt
         if scoreAccum >= 1.0 {
             score      += 10
@@ -169,25 +167,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             refreshHUD()
         }
 
-        // Movimento do player via joystick esquerdo
-        player.move(velocity: leftJoystick.velocity, dt: dt, in: size)
-
-        // Tiro via joystick direito
-        let aimVel = rightJoystick.velocity
-        if hypot(aimVel.x, aimVel.y) > 0.12 {
-            combatSystem.tryFirePlayerBullet(direction: aimVel, at: currentTime)
-        }
-
         // IA dos inimigos
         combatSystem.updateEnemies(
-            dt: dt, now: currentTime,
+            dt: CGFloat(dt), now: currentTime,
             elapsedTime: elapsedTime,
             config: difficultySystem.config,
             onMeleeDamage: { [weak self] in self?.handlePlayerDamage() }
         )
 
         // Atração de moedas
-        coinSystem.attractCoins(dt: dt)
+        coinSystem.attractCoins(dt: CGFloat(dt))
 
         // Spawn
         spawnSystem.update(currentTime: currentTime,
@@ -195,38 +184,63 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         // Dificuldade
         difficultySystem.update(elapsedTime: elapsedTime)
+
+        // Manual Collisions
+        checkCollisions()
     }
 
-    // MARK: – Physics Contacts
+    // MARK: – Collisions
 
-    func didBegin(_ contact: SKPhysicsContact) {
-        contactSystem.handle(
-            contact: contact,
-            player: player,
-            onEnemyKilled: { [weak self] node in
-                self?.handleEnemyKilled(node)
-            },
-            onPlayerDamaged: { [weak self] in
-                self?.handlePlayerDamage()
-            },
-            onCoinCollected: { [weak self] pos in
-                self?.handleCoinCollected(at: pos)
-            },
-            onPowerUpCollected: { [weak self] kind, pos in
-                self?.handlePowerUpCollected(kind: kind, at: pos)
+    private func checkCollisions() {
+        let playerPos = player.component(ofType: PositionComponent.self)?.position ?? .zero
+        let enemies = entityManager.entities.compactMap { $0 as? EnemyEntity }
+        let coins = entityManager.entities.compactMap { $0 as? CoinEntity }
+        let powerups = entityManager.entities.compactMap { $0 as? PowerUpEntity }
+        let bullets = entityManager.entities.compactMap { $0 as? BulletEntity }
+
+        // Bullet vs Enemy
+        for bullet in bullets {
+            guard let bulletPos = bullet.component(ofType: PositionComponent.self)?.position else { continue }
+            for enemy in enemies {
+                guard let enemyPos = enemy.component(ofType: PositionComponent.self)?.position else { continue }
+                let dist = hypot(bulletPos.x - enemyPos.x, bulletPos.y - enemyPos.y)
+                if dist < BulletEntity.radius + EnemyEntity.radius {
+                    entityManager.removeEntity(bullet)
+                    handleEnemyKilled(enemy)
+                    break
+                }
             }
-        )
+        }
+
+        // Player vs Coin
+        for coin in coins {
+            guard let coinPos = coin.component(ofType: PositionComponent.self)?.position else { continue }
+            let dist = hypot(playerPos.x - coinPos.x, playerPos.y - coinPos.y)
+            if dist < PlayerEntity.radius + CoinEntity.radius {
+                handleCoinCollected(entity: coin)
+            }
+        }
+
+        // Player vs PowerUp
+        for powerup in powerups {
+            guard let puPos = powerup.component(ofType: PositionComponent.self)?.position else { continue }
+            let dist = hypot(playerPos.x - puPos.x, playerPos.y - puPos.y)
+            if dist < PlayerEntity.radius + PowerUpEntity.radius {
+                handlePowerUpCollected(kind: powerup.kind, entity: powerup)
+            }
+        }
     }
 
     // MARK: – Event Handlers
 
-    private func handleEnemyKilled(_ node: SKNode) {
+    private func handleEnemyKilled(_ entity: GKEntity) {
         killCount += 1
-        combatSystem.onEnemyKilled(node) { [weak self] points in
+        let pos = entity.component(ofType: PositionComponent.self)?.position ?? .zero
+        combatSystem.onEnemyKilled(entity) { [weak self] points in
             self?.score += points
             self?.refreshHUD()
         }
-        coinSystem.dropLoot(at: node.position)
+        coinSystem.dropLoot(at: pos)
     }
 
     private func handlePlayerDamage() {
@@ -236,15 +250,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         refreshHUD()
     }
 
-    private func handleCoinCollected(at pos: CGPoint) {
-        coinSystem.collectCoin(at: pos) { [weak self] points in
+    private func handleCoinCollected(entity: GKEntity) {
+        let pos = entity.component(ofType: PositionComponent.self)?.position ?? .zero
+        coinSystem.collectCoin(entity: entity, at: pos) { [weak self] points in
             self?.score += points
             self?.refreshHUD()
         }
     }
 
-    private func handlePowerUpCollected(kind: PowerUpKind, at pos: CGPoint) {
-        coinSystem.collectPowerUp(kind: kind, at: pos, player: player) { [weak self] in
+    private func handlePowerUpCollected(kind: PowerUpKind, entity: GKEntity) {
+        let pos = entity.component(ofType: PositionComponent.self)?.position ?? .zero
+        coinSystem.collectPowerUp(kind: kind, entity: entity, at: pos, player: player) { [weak self] in
             self?.refreshHUD()
         }
     }
@@ -253,8 +269,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     private func triggerGameOver() {
         isGameOver = true
-        physicsWorld.speed = 0
-
         run(SKAction.sequence([
             SKAction.wait(forDuration: 0.6),
             SKAction.run { [weak self] in

@@ -1,7 +1,8 @@
 import Foundation
+import GameplayKit
 
 /// Define as probabilidades de drop de loot ao matar um inimigo.
-struct LootComponent {
+class LootComponent: GKComponent {
 
     /// Chance de dropar uma segunda moeda além da primeira (sempre cai).
     var extraCoinChance: Double = 0.35

@@ -1,14 +1,15 @@
 import SpriteKit
+import GameplayKit
 
 class CoinSystem {
 
-    private weak var scene: SKScene?
+    private weak var scene: GameScene?
     private weak var player: PlayerEntity?
 
     private let attractRadius: CGFloat = 55
     private let attractSpeed:  CGFloat = 320
 
-    init(scene: SKScene, player: PlayerEntity) {
+    init(scene: GameScene, player: PlayerEntity) {
         self.scene  = scene
         self.player = player
     }
@@ -17,28 +18,32 @@ class CoinSystem {
 
     func attractCoins(dt: CGFloat) {
         guard let scene, let player else { return }
+        let playerPos = player.component(ofType: PositionComponent.self)?.position ?? .zero
 
-        for node in scene.children where node.name == "coin" {
-            let dx   = player.position.x - node.position.x
-            let dy   = player.position.y - node.position.y
+        let coins = scene.entityManager.entities.compactMap { $0 as? CoinEntity }
+        for coin in coins {
+            guard let posComp = coin.component(ofType: PositionComponent.self) else { continue }
+            let dx   = playerPos.x - posComp.position.x
+            let dy   = playerPos.y - posComp.position.y
             let dist = hypot(dx, dy)
             guard dist < attractRadius, dist > 0 else { continue }
-            node.position.x += (dx / dist) * attractSpeed * dt
-            node.position.y += (dy / dist) * attractSpeed * dt
+            posComp.move(delta: CGPoint(x: (dx / dist) * attractSpeed * dt, y: (dy / dist) * attractSpeed * dt))
         }
     }
 
     // MARK: – Collect
 
-    func collectCoin(at pos: CGPoint, onScoreIncrease: (Int) -> Void) {
+    func collectCoin(entity: GKEntity, at pos: CGPoint, onScoreIncrease: (Int) -> Void) {
+        scene?.entityManager.removeEntity(entity)
         onScoreIncrease(CoinEntity.value)
         floatText("+\(CoinEntity.value)", at: pos,
                   color: SKColor(red: 1, green: 0.85, blue: 0.1, alpha: 1))
     }
 
-    func collectPowerUp(kind: PowerUpKind, at pos: CGPoint,
+    func collectPowerUp(kind: PowerUpKind, entity: GKEntity, at pos: CGPoint,
                         player: PlayerEntity,
                         onHUDUpdate: () -> Void) {
+        scene?.entityManager.removeEntity(entity)
         switch kind {
         case .life:
             player.health.heal()
@@ -61,16 +66,16 @@ class CoinSystem {
         for drop in drops {
             switch drop {
             case .coin:
-                scene.addChild(CoinEntity(at: pos))
+                scene.entityManager.addEntity(CoinEntity(at: pos))
             case .extraCoin:
                 let offset = CGPoint(x: CGFloat.random(in: -15...15),
                                      y: CGFloat.random(in: -15...15))
-                scene.addChild(CoinEntity(at: CGPoint(x: pos.x + offset.x,
+                scene.entityManager.addEntity(CoinEntity(at: CGPoint(x: pos.x + offset.x,
                                                        y: pos.y + offset.y)))
             case .shield:
-                scene.addChild(PowerUpEntity(kind: .shield, at: pos))
+                scene.entityManager.addEntity(PowerUpEntity(kind: .shield, at: pos))
             case .life:
-                scene.addChild(PowerUpEntity(kind: .life, at: pos))
+                scene.entityManager.addEntity(PowerUpEntity(kind: .life, at: pos))
             case .nothing:
                 break
             }
@@ -87,7 +92,7 @@ class CoinSystem {
         lbl.fontColor = color
         lbl.position  = pos
         lbl.zPosition = 30
-        scene.addChild(lbl)
+        scene.worldNode.addChild(lbl)
 
         lbl.run(SKAction.sequence([
             SKAction.group([

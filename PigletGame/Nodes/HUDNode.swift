@@ -24,18 +24,18 @@ class HUDNode: SKNode {
         let strip = SKShapeNode(rectOf: CGSize(width: sceneSize.width, height: 38))
         strip.fillColor   = SKColor(white: 0, alpha: 0.55)
         strip.strokeColor = .clear
-        strip.position    = CGPoint(x: sceneSize.width / 2, y: sceneSize.height - 18)
+        strip.position    = CGPoint(x: 0, y: sceneSize.height / 2 - 18)
         strip.zPosition   = 90
         addChild(strip)
     }
 
     private func buildLabels() {
         killLabel = makeLabel(align: .left)
-        killLabel.position = CGPoint(x: 16, y: sceneSize.height - 28)
+        killLabel.position = CGPoint(x: -sceneSize.width / 2 + 16, y: sceneSize.height / 2 - 28)
         addChild(killLabel)
 
         scoreLabel = makeLabel(align: .right)
-        scoreLabel.position = CGPoint(x: sceneSize.width - 16, y: sceneSize.height - 28)
+        scoreLabel.position = CGPoint(x: sceneSize.width / 2 - 16, y: sceneSize.height / 2 - 28)
         addChild(scoreLabel)
     }
 
@@ -63,7 +63,7 @@ class HUDNode: SKNode {
 
         let spacing: CGFloat = 26
         let total: CGFloat   = spacing * 2
-        let startX = sceneSize.width / 2 - total / 2
+        let startX = -total / 2
 
         for i in 0..<3 {
             let h = SKShapeNode(circleOfRadius: 9)
@@ -72,7 +72,7 @@ class HUDNode: SKNode {
                 : SKColor(white: 0.25, alpha: 1)
             h.strokeColor = SKColor(white: 1, alpha: 0.5)
             h.lineWidth   = 1.5
-            h.position    = CGPoint(x: startX + CGFloat(i) * spacing, y: sceneSize.height - 20)
+            h.position    = CGPoint(x: startX + CGFloat(i) * spacing, y: sceneSize.height / 2 - 20)
             h.zPosition   = 95
             addChild(h)
             heartNodes.append(h)
@@ -83,7 +83,7 @@ class HUDNode: SKNode {
             shield.fillColor   = SKColor(red: 0.25, green: 0.55, blue: 1.0, alpha: 0.9)
             shield.strokeColor = .cyan
             shield.lineWidth   = 2
-            shield.position    = CGPoint(x: startX + 3 * spacing, y: sceneSize.height - 20)
+            shield.position    = CGPoint(x: startX + 3 * spacing, y: sceneSize.height / 2 - 20)
             shield.zPosition   = 95
             addChild(shield)
             heartNodes.append(shield)

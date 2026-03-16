@@ -1,4 +1,5 @@
 import SpriteKit
+import GameplayKit
 
 class SpawnSystem {
 
@@ -7,10 +8,12 @@ class SpawnSystem {
     private var maxEnemies = 7
 
     private var lastSpawnTime: TimeInterval = 0
-    private weak var scene: SKScene?
+    private weak var scene: GameScene?
+    private let mapSize: CGSize
 
-    init(scene: SKScene) {
+    init(scene: GameScene, mapSize: CGSize) {
         self.scene = scene
+        self.mapSize = mapSize
     }
 
     // MARK: – Update
@@ -28,13 +31,12 @@ class SpawnSystem {
 
     private func spawnEnemy(difficultyConfig: DifficultyConfig) {
         guard let scene else { return }
-        let existing = scene.children.filter { $0.name == "enemy" }.count
+        let existing = scene.entityManager.entities.filter { $0 is EnemyEntity }.count
         guard existing < maxEnemies else { return }
 
-        let pos      = randomEdgePoint(in: scene.size)
-        let isRanged = Double.random(in: 0...1) < (difficultyConfig.level > 1 ? 0.38 : 0.18)
-        let enemy    = EnemyEntity(type: isRanged ? .ranged : .melee, at: pos)
-        scene.addChild(enemy)
+        let pos      = randomEdgePoint(in: mapSize)
+        let enemy    = EnemyEntity(at: pos)
+        scene.entityManager.addEntity(enemy)
     }
 
     private func randomEdgePoint(in size: CGSize) -> CGPoint {
