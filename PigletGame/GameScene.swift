@@ -70,6 +70,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: – Lifecycle
 
     override func didMove(to view: SKView) {
+        AdCoordinator.shared.loadAd()
         physicsWorld.gravity = .zero
         physicsWorld.contactDelegate = self
         backgroundColor = .black
@@ -80,7 +81,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     // MARK: – Setup
-
     private func setupArena() {
         let bg = SKSpriteNode(imageNamed: "arena")
         bg.position = CGPoint(x: size.width / 2, y: size.height / 2)

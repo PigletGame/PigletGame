@@ -152,9 +152,17 @@ class GameOverScene: SKScene {
         let loc = touch.location(in: self)
         for node in nodes(at: loc) {
             if node.name == "playAgain" {
-                let scene = GameScene()
-                scene.scaleMode = .resizeFill
-                view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.45))
+
+                AdCoordinator.shared.showAd {
+
+                    DispatchQueue.main.async {
+                        let scene = GameScene()
+                        scene.scaleMode = .resizeFill
+                        self.view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.45))
+                    }
+
+                }
+
                 return
             }
             if node.name == "menu" {
