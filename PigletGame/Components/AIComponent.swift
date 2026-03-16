@@ -1,17 +1,11 @@
-import Foundation
+import GameplayKit
 
-enum EnemyType {
-    case melee
-    case ranged
-}
+class AIComponent: GKComponent {
+    var lastHitTime: TimeInterval = 0
 
-class AIComponent {
-
-    let type: EnemyType
-    var lastShotTime: TimeInterval = 0
-    var lastHitTime:  TimeInterval = 0
-
-    init(type: EnemyType) {
-        self.type = type
+    override init() {
+        super.init()
     }
+
+    required init?(coder aDecoder: NSCoder) { fatalError() }
 }

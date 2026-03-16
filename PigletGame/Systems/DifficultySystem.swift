@@ -52,7 +52,7 @@ class DifficultySystem {
         alert.text      = "⚡ Dificuldade \(config.level)!"
         alert.fontSize  = 22
         alert.fontColor = SKColor(red: 1, green: 0.3, blue: 0.1, alpha: 1)
-        alert.position  = CGPoint(x: scene.size.width / 2, y: scene.size.height / 2 + 55)
+        alert.position  = CGPoint(x: 0, y: 0)
         alert.zPosition = 100
         scene.addChild(alert)
 

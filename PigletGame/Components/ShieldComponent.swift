@@ -1,14 +1,24 @@
 import SpriteKit
+import GameplayKit
 
-class ShieldComponent {
+class ShieldComponent: GKComponent {
 
     private(set) var isActive: Bool = false
-    private weak var ownerNode: SKShapeNode?
+    private weak var ownerNode: SKNode?
     private let ownerRadius: CGFloat
 
-    init(ownerNode: SKShapeNode, ownerRadius: CGFloat) {
-        self.ownerNode   = ownerNode
+    init(ownerRadius: CGFloat) {
         self.ownerRadius = ownerRadius
+        super.init()
+    }
+
+    required init?(coder aDecoder: NSCoder) { fatalError() }
+
+    func attach(to node: SKNode) {
+        self.ownerNode = node
+        if isActive {
+            attachVisual()
+        }
     }
 
     func activate() {

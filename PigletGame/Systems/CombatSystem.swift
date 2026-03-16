@@ -1,4 +1,6 @@
 import SpriteKit
+import GameplayKit
+import UIKit
 
 class CombatSystem {
 
@@ -6,28 +8,26 @@ class CombatSystem {
     private var shootCooldown: TimeInterval = 0.12
     private var lastShotTime: TimeInterval  = 0
 
-    private weak var scene: SKScene?
+    private weak var scene: GameScene?
     private weak var player: PlayerEntity?
 
-    init(scene: SKScene, player: PlayerEntity) {
+    init(scene: GameScene, player: PlayerEntity) {
         self.scene  = scene
         self.player = player
     }
 
     // MARK: – Player Shooting
 
-    func tryFirePlayerBullet(direction: CGPoint, at now: TimeInterval) {
+    func tryFirePlayerBullet(direction: CGPoint, position: CGPoint, at now: TimeInterval) {
         guard now - lastShotTime >= shootCooldown else { return }
-        guard let scene, let player else { return }
+        guard let scene else { return }
         lastShotTime = now
 
-        let vel = CGVector(dx: direction.x * playerBulletSpeed,
-                           dy: direction.y * playerBulletSpeed)
-        let bullet = BulletNode(owner: .player, position: player.position, velocity: vel)
-        scene.addChild(bullet)
+        let bullet = BulletEntity(position: position, direaction: direction, sprite: "PLACEHOLDER/arrow")
+        scene.entityManager.addEntity(bullet)
     }
 
-    // MARK: – Enemy AI & Shooting
+    // MARK: – Enemy AI
 
     func updateEnemies(dt: CGFloat, now: TimeInterval,
                        elapsedTime: TimeInterval,
@@ -35,77 +35,44 @@ class CombatSystem {
                        onMeleeDamage: () -> Void) {
         guard let scene, let player else { return }
 
-        let enemies = scene.children.compactMap { $0 as? EnemyEntity }
+        let enemies = scene.entityManager.entities.compactMap { $0 as? EnemyEntity }
+        let playerPos = player.component(ofType: PositionComponent.self)?.position ?? .zero
 
         for enemy in enemies {
-            let dx   = player.position.x - enemy.position.x
-            let dy   = player.position.y - enemy.position.y
+            guard let enemyPosComp = enemy.component(ofType: PositionComponent.self) else { continue }
+            let enemyPos = enemyPosComp.position
+            let dx   = playerPos.x - enemyPos.x
+            let dy   = playerPos.y - enemyPos.y
             let dist = hypot(dx, dy)
             guard dist > 0 else { continue }
 
-            switch enemy.ai.type {
-            case .melee:
-                moveEnemy(enemy, dx: dx, dy: dy, dist: dist, speed: config.enemySpeed, dt: dt)
-                if dist < PlayerEntity.radius + 20 {
-                    if elapsedTime - enemy.ai.lastHitTime >= config.meleeCooldown {
-                        enemy.ai.lastHitTime = elapsedTime
-                        onMeleeDamage()
-                    }
-                }
-
-            case .ranged:
-                orbitEnemy(enemy, dx: dx, dy: dy, dist: dist, speed: config.enemySpeed, dt: dt)
-                if now - enemy.ai.lastShotTime >= config.rangedShotInterval {
-                    enemy.ai.lastShotTime = now
-                    fireEnemyBullet(from: enemy.position,
-                                    toward: player.position,
-                                    speed: config.enemyBulletSpeed)
+            // Stop moving if close enough to player to avoid fully overlapping
+            let stopDistance = PlayerEntity.radius + EnemyEntity.radius - 10
+            if dist > stopDistance {
+                moveEnemy(enemyPosComp, dx: dx, dy: dy, dist: dist, speed: config.enemySpeed, dt: dt)
+            }
+            
+            if dist <= stopDistance + 5 {
+                if elapsedTime - enemy.ai.lastHitTime >= config.meleeCooldown {
+                    enemy.ai.lastHitTime = elapsedTime
+                    onMeleeDamage()
                 }
             }
         }
     }
 
-    private func moveEnemy(_ enemy: EnemyEntity, dx: CGFloat, dy: CGFloat,
+    private func moveEnemy(_ enemyPos: PositionComponent, dx: CGFloat, dy: CGFloat,
                             dist: CGFloat, speed: CGFloat, dt: CGFloat) {
-        enemy.position.x += (dx / dist) * speed * dt
-        enemy.position.y += (dy / dist) * speed * dt
-    }
-
-    private func orbitEnemy(_ enemy: EnemyEntity, dx: CGFloat, dy: CGFloat,
-                             dist: CGFloat, speed: CGFloat, dt: CGFloat) {
-        let preferred: CGFloat = 195
-        let nx = dx / dist
-        let ny = dy / dist
-        let orbitSpeed = speed * 0.72
-
-        if dist > preferred + 25 {
-            enemy.position.x += nx * orbitSpeed * dt
-            enemy.position.y += ny * orbitSpeed * dt
-        } else if dist < preferred - 25 {
-            enemy.position.x -= nx * orbitSpeed * dt
-            enemy.position.y -= ny * orbitSpeed * dt
-        } else {
-            enemy.position.x += (-ny) * orbitSpeed * 0.5 * dt
-            enemy.position.y +=   nx  * orbitSpeed * 0.5 * dt
-        }
-    }
-
-    private func fireEnemyBullet(from pos: CGPoint, toward target: CGPoint, speed: CGFloat) {
-        guard let scene else { return }
-        let dx   = target.x - pos.x
-        let dy   = target.y - pos.y
-        let dist = hypot(dx, dy)
-        guard dist > 0 else { return }
-
-        let vel    = CGVector(dx: (dx / dist) * speed, dy: (dy / dist) * speed)
-        let bullet = BulletNode(owner: .enemy, position: pos, velocity: vel)
-        scene.addChild(bullet)
+        enemyPos.move(delta: CGPoint(x: (dx / dist) * speed * dt, y: (dy / dist) * speed * dt))
     }
 
     // MARK: – Enemy Killed
 
-    func onEnemyKilled(_ node: SKNode, onScoreIncrease: (Int) -> Void) {
-        spawnDeathFX(at: node.position)
+    func onEnemyKilled(_ entity: GKEntity, onScoreIncrease: (Int) -> Void) {
+        if let pos = entity.component(ofType: PositionComponent.self)?.position {
+            spawnDeathFX(at: pos)
+        }
+        scene?.entityManager.removeEntity(entity)
         onScoreIncrease(25)
     }
 
@@ -117,7 +84,7 @@ class CombatSystem {
             p.strokeColor = .clear
             p.position    = pos
             p.zPosition   = 7
-            scene.addChild(p)
+            scene.worldNode.addChild(p)
 
             let angle = CGFloat.random(in: 0...(2 * .pi))
             let spd   = CGFloat.random(in: 55...130)
@@ -145,7 +112,10 @@ class CombatSystem {
         let result = health.takeDamage()
         guard result == .hit else { return }
 
+        UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+
         if health.isDead {
+            UINotificationFeedbackGenerator().notificationOccurred(.error)
             onGameOver()
             return
         }

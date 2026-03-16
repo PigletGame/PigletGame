@@ -10,21 +10,19 @@ import SpriteKit
 
 struct ContentView: View {
     var body: some View {
-        SKViewContainer()
-            .ignoresSafeArea()
-            .statusBarHidden()
+        GeometryReader { geometry in
+            let scene: SKScene = {
+                let scene = MenuScene()
+                scene.size = geometry.size
+                scene.scaleMode = .aspectFill
+                return scene
+            }()
+
+            SpriteView(scene: scene)
+                .ignoresSafeArea()
+        }
     }
 }
-
-struct SKViewContainer: UIViewRepresentable {
-    func makeUIView(context: Context) -> SKView {
-        let view = SKView()
-        view.ignoresSiblingOrder = true
-        view.isMultipleTouchEnabled = true
-        let scene = MenuScene()
-        scene.scaleMode = .resizeFill
-        view.presentScene(scene)
-        return view
-    }
-    func updateUIView(_ uiView: SKView, context: Context) {}
+#Preview {
+    ContentView()
 }

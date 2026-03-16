@@ -1,6 +1,6 @@
-import Foundation
+import GameplayKit
 
-class HealthComponent {
+class HealthComponent: GKComponent {
 
     static let maxLives = 3
 
@@ -9,7 +9,11 @@ class HealthComponent {
 
     init(lives: Int = HealthComponent.maxLives) {
         self.lives = lives
+        super.init()
     }
+
+    required init?(coder aDecoder: NSCoder) { fatalError() }
+
 
     var isDead: Bool { lives <= 0 }
 
