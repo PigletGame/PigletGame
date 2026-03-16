@@ -3,11 +3,13 @@ import SpriteKit
 class GameOverScene: SKScene {
 
     private let finalScore: Int
+    private let finalCoins: Int
     private let finalKills: Int
     private let finalTime: Int
 
-    init(score: Int, kills: Int, time: Int) {
+    init(score: Int, coins: Int, kills: Int, time: Int) {
         self.finalScore = score
+        self.finalCoins = coins
         self.finalKills = kills
         self.finalTime  = time
         super.init(size: .zero)
@@ -66,6 +68,7 @@ class GameOverScene: SKScene {
         let timeStr = formatTime(finalTime)
         let stats: [(String, String)] = [
             ("⭐ Pontuação", "\(finalScore)"),
+            ("🪙 Moedas", "\(finalCoins)"),
             ("☠ Eliminações", "\(finalKills)"),
             ("⏱ Tempo", timeStr)
         ]
