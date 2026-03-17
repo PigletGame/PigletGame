@@ -25,6 +25,7 @@ class GameScene: SKScene {
 
     private var score:       Int = 0
     private var killCount:   Int = 0
+    private var collectedCoins: Int = 0
     private var elapsedTime: TimeInterval = 0
     private var lastUpdateTime: TimeInterval = 0
     private var scoreAccum:  TimeInterval = 0
@@ -137,10 +138,13 @@ class GameScene: SKScene {
     // MARK: – HUD
 
     private func refreshHUD() {
-        hud.update(score: score,
-                   kills: killCount,
-                   lives: player.health.lives,
-                   hasShield: player.shield.isActive)
+        hud.update(
+            score: score,
+            kills: killCount,
+            lives: player.health.lives,
+            hasShield: player.shield.isActive,
+            coins: collectedCoins
+        )
     }
 
     // MARK: – Update Loop
@@ -253,8 +257,12 @@ class GameScene: SKScene {
     private func handleCoinCollected(entity: GKEntity) {
         let pos = entity.component(ofType: PositionComponent.self)?.position ?? .zero
         coinSystem.collectCoin(entity: entity, at: pos) { [weak self] points in
-            self?.score += points
-            self?.refreshHUD()
+            guard let self else { return }
+
+            self.collectedCoins += 5   // ✅ NOVO
+            self.score += points
+
+            self.refreshHUD()
         }
     }
 
@@ -265,20 +273,31 @@ class GameScene: SKScene {
         }
     }
 
-    // MARK: – Game Over
-
     private func triggerGameOver() {
         isGameOver = true
+
+        GameDataStore.shared.recordRun(
+            collectedCoins: collectedCoins,
+            kills: killCount
+        )
+
         run(SKAction.sequence([
             SKAction.wait(forDuration: 0.6),
             SKAction.run { [weak self] in
                 guard let self else { return }
-                let scene = GameOverScene(score: self.score,
-                                          kills: self.killCount,
-                                          time: Int(self.elapsedTime))
+
+                let scene = GameOverScene(
+                    score: self.score,
+                    coins: self.collectedCoins, // ✅ agora correto
+                    kills: self.killCount,
+                    time: Int(self.elapsedTime)
+                )
+
                 scene.scaleMode = .resizeFill
-                self.view?.presentScene(scene,
-                                        transition: SKTransition.fade(withDuration: 0.55))
+                self.view?.presentScene(
+                    scene,
+                    transition: SKTransition.fade(withDuration: 0.55)
+                )
             }
         ]))
     }

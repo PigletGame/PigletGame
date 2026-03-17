@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AD7D9D902F6877DC00C1DB25 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = AD7D9D8F2F6877DC00C1DB25 /* GoogleMobileAds */; };
+		AD7D9E552F69D5ED00C1DB25 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = AD7D9E542F69D5ED00C1DB25 /* GoogleMobileAds */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,7 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AD7D9D902F6877DC00C1DB25 /* GoogleMobileAds in Frameworks */,
+				AD7D9E552F69D5ED00C1DB25 /* GoogleMobileAds in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -83,7 +83,7 @@
 			);
 			name = PigletGame;
 			packageProductDependencies = (
-				AD7D9D8F2F6877DC00C1DB25 /* GoogleMobileAds */,
+				AD7D9E542F69D5ED00C1DB25 /* GoogleMobileAds */,
 			);
 			productName = PigletGame;
 			productReference = 5C31ADA32F648286006AF862 /* PigletGame.app */;
@@ -115,7 +115,7 @@
 			mainGroup = 5C31AD9A2F648286006AF862;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				AD7D9D8E2F6877DC00C1DB25 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+				AD7D9E532F69D5ED00C1DB25 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5C31ADA42F648286006AF862 /* Products */;
@@ -372,9 +372,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		AD7D9D8E2F6877DC00C1DB25 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+		AD7D9E532F69D5ED00C1DB25 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 13.1.0;
@@ -383,9 +383,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		AD7D9D8F2F6877DC00C1DB25 /* GoogleMobileAds */ = {
+		AD7D9E542F69D5ED00C1DB25 /* GoogleMobileAds */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AD7D9D8E2F6877DC00C1DB25 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			package = AD7D9E532F69D5ED00C1DB25 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
 			productName = GoogleMobileAds;
 		};
 /* End XCSwiftPackageProductDependency section */

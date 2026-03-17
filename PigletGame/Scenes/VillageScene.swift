@@ -32,7 +32,7 @@ class VillageScene: SKScene {
     }
 
     private func setupScene() {
-        // Sky gradient feel – simple coloured strips
+
         let sky = SKShapeNode(rectOf: CGSize(width: size.width, height: size.height * 0.55))
         sky.fillColor   = SKColor(red: 0.25, green: 0.50, blue: 0.80, alpha: 1)
         sky.strokeColor = .clear
