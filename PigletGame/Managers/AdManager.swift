@@ -1,5 +1,5 @@
 //
-//  AdCoordinator.swift
+//  AdManager.swift
 //  PigletGame
 //
 //  Created by Diogo Camargo on 16/03/26.
@@ -8,8 +8,8 @@
 import GoogleMobileAds
 import UIKit
 
-class AdCoordinator: NSObject, FullScreenContentDelegate {
-    static let shared = AdCoordinator()
+class AdManager: NSObject, FullScreenContentDelegate {
+    static let shared = AdManager()
 
     private var rewardedAd: RewardedAd?
     private var pendingCompletion: (() -> Void)?

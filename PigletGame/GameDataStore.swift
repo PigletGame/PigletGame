@@ -115,6 +115,10 @@ final class GameDataStore {
         progress.totalCoins -= slot.cost
         slot.isPurchased = true
         saveContext(context)
+        let purchasedCount = purchasedSlotsCount()
+
+        GameCenterManager.shared.submitScore(purchasedCount)
+
         return .purchased(remainingCoins: progress.totalCoins)
     }
 
@@ -156,5 +160,14 @@ final class GameDataStore {
         } catch {
             assertionFailure("Falha ao salvar SwiftData: \(error)")
         }
+    }
+
+    func purchasedSlotsCount() -> Int {
+        guard let context else { return 0 }
+
+        let descriptor = FetchDescriptor<VillageSlotState>()
+        let slots = (try? context.fetch(descriptor)) ?? []
+
+        return slots.filter { $0.isPurchased }.count
     }
 }

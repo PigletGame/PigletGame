@@ -11,7 +11,11 @@ import SwiftData
 @main
 struct PigletGameApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    
+
+    init() {
+        GameCenterManager.shared.authenticatePlayer()
+    }
+
     private let sharedModelContainer: ModelContainer = {
         let schema = Schema([
             PlayerProgress.self,

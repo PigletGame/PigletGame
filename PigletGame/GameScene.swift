@@ -71,7 +71,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     // MARK: – Lifecycle
     override func didMove(to view: SKView) {
-        AdCoordinator.shared.loadAd()
+        AdManager.shared.loadAd()
         physicsWorld.gravity = .zero
         physicsWorld.contactDelegate = self
         backgroundColor = .black

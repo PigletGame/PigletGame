@@ -154,7 +154,7 @@ class GameOverScene: SKScene {
         for node in nodes(at: loc) {
             if node.name == "playAgain" {
 
-                AdCoordinator.shared.showAd {
+                AdManager.shared.showAd {
                     let scene = GameScene()
                     scene.scaleMode = .resizeFill
                     self.view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.45))
