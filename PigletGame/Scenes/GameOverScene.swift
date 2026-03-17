@@ -3,11 +3,13 @@ import SpriteKit
 class GameOverScene: SKScene {
 
     private let finalScore: Int
+    private let finalCoins: Int
     private let finalKills: Int
     private let finalTime: Int
 
-    init(score: Int, kills: Int, time: Int) {
+    init(score: Int, coins: Int, kills: Int, time: Int) {
         self.finalScore = score
+        self.finalCoins = coins
         self.finalKills = kills
         self.finalTime  = time
         super.init(size: .zero)
@@ -22,7 +24,6 @@ class GameOverScene: SKScene {
     }
 
     // MARK: – Background
-
     private func setupBackground() {
         for _ in 0..<40 {
             let p = SKShapeNode(circleOfRadius: CGFloat.random(in: 0.6...1.8))
@@ -66,6 +67,7 @@ class GameOverScene: SKScene {
         let timeStr = formatTime(finalTime)
         let stats: [(String, String)] = [
             ("⭐ Pontuação", "\(finalScore)"),
+            ("🪙 Moedas", "\(finalCoins)"),
             ("☠ Eliminações", "\(finalKills)"),
             ("⏱ Tempo", timeStr)
         ]
@@ -146,15 +148,18 @@ class GameOverScene: SKScene {
     }
 
     // MARK: – Touch
-
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let loc = touch.location(in: self)
         for node in nodes(at: loc) {
             if node.name == "playAgain" {
-                let scene = GameScene()
-                scene.scaleMode = .resizeFill
-                view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.45))
+
+                AdManager.shared.showAd {
+                    let scene = GameScene()
+                    scene.scaleMode = .resizeFill
+                    self.view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.45))
+                }
+
                 return
             }
             if node.name == "menu" {

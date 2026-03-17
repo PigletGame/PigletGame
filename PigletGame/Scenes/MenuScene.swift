@@ -25,10 +25,7 @@ class MenuScene: SKScene {
         lastLayoutSize = size
     }
 
-    // MARK: – Background
-
     private func setupBackground() {
-        // Starfield effect
         for _ in 0..<60 {
             let star = SKShapeNode(circleOfRadius: CGFloat.random(in: 0.8...2))
             star.fillColor = .white
@@ -84,6 +81,11 @@ class MenuScene: SKScene {
                             name: "villageButton",
                             color: SKColor(red: 0.2, green: 0.55, blue: 0.25, alpha: 1),
                             y: size.height * 0.24))
+
+        addChild(makeButton(text: "🏆  RANKING",
+                            name: "leaderboardButton",
+                            color: SKColor(red: 0.2, green: 0.4, blue: 0.8, alpha: 1),
+                            y: size.height * 0.12))
     }
 
     private func makeButton(text: String, name: String, color: SKColor, y: CGFloat) -> SKNode {
@@ -124,7 +126,15 @@ class MenuScene: SKScene {
                 presentVillage()
                 return
             }
+            if node.name == "leaderboardButton" {
+                showLeaderboard()
+                return
+            }
         }
+    }
+
+    private func showLeaderboard() {
+        GameCenterManager.shared.showLeaderboard()
     }
 
     private func presentGame() {
