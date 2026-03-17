@@ -16,6 +16,9 @@ class HealthComponent: GKComponent {
 
 
     var isDead: Bool { lives <= 0 }
+    
+    var onDeath: (() -> Void)?
+
 
     /// Tenta aplicar dano. Retorna `true` se o dano foi absorvido pelo escudo
     /// ou pelo estado de invencibilidade (caller não precisa fazer nada).
@@ -24,6 +27,7 @@ class HealthComponent: GKComponent {
     func takeDamage() -> DamageResult {
         guard !isInvincible else { return .ignored }
         lives = max(0, lives - 1)
+        if isDead { onDeath?() }
         return .hit
     }
 

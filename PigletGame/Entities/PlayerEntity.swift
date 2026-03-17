@@ -9,6 +9,8 @@ class PlayerEntity: GKEntity {
     let health = HealthComponent()
     lazy var shield = ShieldComponent(ownerRadius: PlayerEntity.radius)
 
+    private var isPlayingStepsAudio = false
+
     init(position: CGPoint, leftJoystick: JoystickNode, rightJoystick: JoystickNode, summonProjectileAction: @escaping (CGPoint, CGPoint) -> Void) {
         super.init()
         
@@ -32,7 +34,12 @@ class PlayerEntity: GKEntity {
         addComponent(health)
         addComponent(shield)
         
+        health.onDeath = { [weak self] in
+            self?.updateStepsAudio(isWalking: false)
+        }
+        
         shield.attach(to: animComp.node)
+       
     }
 
     required init?(coder aDecoder: NSCoder) { fatalError() }
@@ -58,4 +65,15 @@ class PlayerEntity: GKEntity {
             node.run(flash)
         }
     }
+
+    func updateStepsAudio(isWalking: Bool) {
+        if isWalking && !isPlayingStepsAudio {
+            AudioService.shared.play("steps.wav", loop: true, volume: 0.1)
+            isPlayingStepsAudio = true
+        } else if (!isWalking && isPlayingStepsAudio) {
+            AudioService.shared.stop("steps.wav")
+            isPlayingStepsAudio = false
+        }
+    }
+    
 }
