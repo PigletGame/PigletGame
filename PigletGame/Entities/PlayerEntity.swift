@@ -18,7 +18,7 @@ class PlayerEntity: GKEntity {
         let animComp = SpriteAnimationComponent(
             default: "Player/Standby",
             walkingSprites:
-                Array(0...14).map{return "Player/Walking/\($0)"},
+                Array(0...13).map{return "Player/Walking/\($0)"},
             timePerFrame: 0.05
         )
 

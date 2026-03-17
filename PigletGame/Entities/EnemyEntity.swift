@@ -15,17 +15,12 @@ class EnemyEntity: GKEntity {
         addComponent(posComp)
         
         let animComp = SpriteAnimationComponent(
-            default: "Skeleton/Default",
-            walkingSprites: [
-                "Skeleton/Walking_01",
-                "Skeleton/Walking_02",
-                "Skeleton/Walking_03",
-                "Skeleton/Walking_04",
-                "Skeleton/Walking_05",
-                "Skeleton/Walking_06",
-            ]
+            default: "Tiger/Standby",
+            walkingSprites:
+                Array(0...13).map{return "Tiger/Walking/\($0)"},
+            timePerFrame: 0.05
         )
-        
+
         animComp.node.name = "enemy"
         animComp.node.entity = self
         
