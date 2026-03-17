@@ -9,9 +9,9 @@ import SpriteKit
 import GameplayKit
 
 class VisualComponent: GKComponent {
-    let node: SKSpriteNode
+    let node: SKNode
 
-    init(node: SKSpriteNode) {
+    init(node: SKNode) {
         self.node = node
         super.init()
     }
@@ -22,7 +22,24 @@ class VisualComponent: GKComponent {
         if let posComponent = entity?.component(ofType: PositionComponent.self) {
             node.position = posComponent.position
         }
+    }
+
+    func flash(color: SKColor, duration: TimeInterval = 0.1, completion: (() -> Void)? = nil) {
+        let flashAction = SKAction.sequence([
+            SKAction.colorize(with: color, colorBlendFactor: 1.0, duration: duration * 0.4),
+            SKAction.colorize(with: .clear, colorBlendFactor: 0, duration: duration * 0.6)
+        ])
         
+        // Apply to the node itself if it's a sprite, or its first sprite child
+        let target = (node as? SKSpriteNode) ?? node.children.compactMap({ $0 as? SKSpriteNode }).first
+        
+        if let sprite = target {
+            sprite.run(flashAction) {
+                completion?()
+            }
+        } else {
+            completion?()
+        }
     }
 
     static func from(_ entity: GKEntity) -> VisualComponent? {

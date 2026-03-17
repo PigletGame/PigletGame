@@ -19,10 +19,12 @@ class PowerUpEntity: GKEntity {
         let posComp = PositionComponent(position: pos)
         addComponent(posComp)
         
+        let rootNode = SKNode()
         let sprite: SKSpriteNode
         if kind == .life {
-            sprite = SKSpriteNode(imageNamed: "PLACEHOLDER/Heart")
+            sprite = SKSpriteNode(imageNamed: "HUD/Heart")
             sprite.texture?.filteringMode = .nearest
+            sprite.size = CGSize(width: 24, height: 24)
             sprite.zPosition = 5
             sprite.name = "powerUp"
             sprite.entity = self
@@ -33,38 +35,27 @@ class PowerUpEntity: GKEntity {
             ]))
             sprite.run(pulse)
         } else {
-            let r = PowerUpEntity.radius
-            let path = CGPath(ellipseIn: CGRect(x: -r, y: -r, width: r*2, height: r*2), transform: nil)
-            let shape = SKShapeNode(path: path)
-            shape.zPosition = 5
-            shape.lineWidth = 2.5
-            shape.name      = "powerUp"
-            shape.entity    = self
-            shape.fillColor   = SKColor(red: 0.20, green: 0.50, blue: 1.0, alpha: 1)
-            shape.strokeColor = .cyan
+            sprite = SKSpriteNode(imageNamed: "HUD/Shield")
+            sprite.texture?.filteringMode = .nearest
+            sprite.size = CGSize(width: 24, height: 24)
+            sprite.zPosition = 5
+            sprite.name = "powerUp"
+            sprite.entity = self
             
             let pulse = SKAction.repeatForever(SKAction.sequence([
                 SKAction.scale(to: 1.25, duration: 0.45),
                 SKAction.scale(to: 0.88, duration: 0.45)
             ]))
-            shape.run(pulse)
-            
-            sprite = SKSpriteNode()
-            sprite.addChild(shape)
+            sprite.run(pulse)
         }
+        rootNode.addChild(sprite)
         
-        let visualComp = VisualComponent(node: sprite)
+        let visualComp = VisualComponent(node: rootNode)
         addComponent(visualComp)
         
-        runLifecycleActions(on: sprite)
+        // Unify explosion effect
+        addComponent(LootAnimationComponent(lifetime: PowerUpEntity.lifetime))
     }
 
     required init?(coder aDecoder: NSCoder) { fatalError() }
-
-    private func runLifecycleActions(on node: SKNode) {
-        node.run(SKAction.sequence([
-            SKAction.wait(forDuration: PowerUpEntity.lifetime),
-            SKAction.removeFromParent()
-        ]))
-    }
 }

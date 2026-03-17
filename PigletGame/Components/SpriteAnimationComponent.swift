@@ -30,10 +30,12 @@ class SpriteAnimationComponent: VisualComponent {
             if posComponent.lastDeltaPosition == .zero {
                 stopWalking()
             } else {
-                if posComponent.lastDeltaPosition.x > 0 {
-                    node.xScale = 1
-                } else if posComponent.lastDeltaPosition.x < 0 {
-                    node.xScale = -1
+                if let sprite = node as? SKSpriteNode {
+                    if posComponent.lastDeltaPosition.x > 0 {
+                        sprite.xScale = 1
+                    } else if posComponent.lastDeltaPosition.x < 0 {
+                        sprite.xScale = -1
+                    }
                 }
                 startWalking()
             }
@@ -54,8 +56,10 @@ class SpriteAnimationComponent: VisualComponent {
     private func stopWalking() {
         guard node.action(forKey: walkingActionKey) != nil else { return }
 
-        super.node.removeAction(forKey: walkingActionKey)
-        super.node.texture = SKTexture(imageNamed: defaultSpriteName)
-        super.node.texture?.filteringMode = .nearest
+        node.removeAction(forKey: walkingActionKey)
+        if let sprite = node as? SKSpriteNode {
+            sprite.texture = SKTexture(imageNamed: defaultSpriteName)
+            sprite.texture?.filteringMode = .nearest
+        }
     }
 }

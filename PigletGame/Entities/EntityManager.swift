@@ -33,6 +33,15 @@ class EntityManager {
     }
     
     func update(deltaTime: TimeInterval) {
+        // Cleanup entities whose visual nodes were removed (e.g. by animations)
+        let toRemove = entities.filter { entity in
+            if let visual = VisualComponent.from(entity) {
+                return visual.node.parent == nil
+            }
+            return false
+        }
+        toRemove.forEach { removeEntity($0) }
+
         for entity in entities {
             entity.update(deltaTime: deltaTime)
         }

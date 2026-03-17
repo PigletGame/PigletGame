@@ -50,7 +50,7 @@ class MenuScene: SKScene {
     // MARK: – Title
 
     private func setupTitle() {
-        let title = SKLabelNode(fontNamed: "AvenirNext-Heavy")
+        let title = SKLabelNode(fontNamed: StyleGuide.Typography.heavy)
         title.text = "COINKS"
         title.fontSize = 70
         title.fontColor = SKColor(red: 1.0, green: 0.85, blue: 0.15, alpha: 1)
@@ -63,7 +63,7 @@ class MenuScene: SKScene {
         let down = up.reversed()
         title.run(SKAction.repeatForever(SKAction.sequence([up, down])))
 
-        let sub = SKLabelNode(fontNamed: "AvenirNext-Medium")
+        let sub = SKLabelNode(fontNamed: StyleGuide.Typography.medium)
         sub.text = "Survivors"
         sub.fontSize = 26
         sub.fontColor = SKColor(white: 0.85, alpha: 1)
@@ -97,7 +97,7 @@ class MenuScene: SKScene {
         bg.lineWidth = 2
         bg.name = name
 
-        let label = SKLabelNode(fontNamed: "AvenirNext-Bold")
+        let label = SKLabelNode(fontNamed: StyleGuide.Typography.bold)
         label.text = text
         label.fontSize = 22
         label.fontColor = .white

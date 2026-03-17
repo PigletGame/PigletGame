@@ -25,6 +25,7 @@ class GameScene: SKScene {
 
     private var score:       Int = 0
     private var killCount:   Int = 0
+    private var coinCount:   Int = 0
     private var elapsedTime: TimeInterval = 0
     private var lastUpdateTime: TimeInterval = 0
     private var scoreAccum:  TimeInterval = 0
@@ -128,7 +129,7 @@ class GameScene: SKScene {
     }
 
     private func setupSystems() {
-        difficultySystem = DifficultySystem(node: cameraNode)
+        difficultySystem = DifficultySystem(node: cameraNode, sceneSize: size)
         spawnSystem      = SpawnSystem(scene: self, mapSize: mapSize)
         combatSystem     = CombatSystem(scene: self, player: player)
         coinSystem       = CoinSystem(scene: self, player: player)
@@ -139,6 +140,7 @@ class GameScene: SKScene {
     private func refreshHUD() {
         hud.update(score: score,
                    kills: killCount,
+                   coins: coinCount,
                    lives: player.health.lives,
                    hasShield: player.shield.isActive)
     }
@@ -206,7 +208,16 @@ class GameScene: SKScene {
                 let dist = hypot(bulletPos.x - enemyPos.x, bulletPos.y - enemyPos.y)
                 if dist < BulletEntity.radius + EnemyEntity.radius {
                     entityManager.removeEntity(bullet)
-                    handleEnemyKilled(enemy)
+                    
+                    let result = enemy.health.takeDamage()
+                    if result == .hit {
+                        if enemy.health.isDead {
+                            handleEnemyKilled(enemy)
+                        } else {
+                            // Visual feedback for hit
+                            enemy.component(ofType: VisualComponent.self)?.flash(color: .white, duration: 0.1)
+                        }
+                    }
                     break
                 }
             }
@@ -240,7 +251,11 @@ class GameScene: SKScene {
             self?.score += points
             self?.refreshHUD()
         }
-        coinSystem.dropLoot(at: pos)
+        
+        let multiplier = difficultySystem.config.coinsPerKill
+        for _ in 0..<multiplier {
+            coinSystem.dropLoot(at: pos)
+        }
     }
 
     private func handlePlayerDamage() {
@@ -254,6 +269,7 @@ class GameScene: SKScene {
         let pos = entity.component(ofType: PositionComponent.self)?.position ?? .zero
         coinSystem.collectCoin(entity: entity, at: pos) { [weak self] points in
             self?.score += points
+            self?.coinCount += 1
             self?.refreshHUD()
         }
     }

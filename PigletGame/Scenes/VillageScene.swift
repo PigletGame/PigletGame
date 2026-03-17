@@ -24,7 +24,7 @@ class VillageScene: SKScene {
         addChild(ground)
 
         // Title
-        let title = SKLabelNode(fontNamed: "AvenirNext-Heavy")
+        let title = SKLabelNode(fontNamed: StyleGuide.Typography.heavy)
         title.text      = "🏡  VILA"
         title.fontSize  = 40
         title.fontColor = .white
@@ -32,7 +32,7 @@ class VillageScene: SKScene {
         title.zPosition = 1
         addChild(title)
 
-        let sub = SKLabelNode(fontNamed: "AvenirNext-Medium")
+        let sub = SKLabelNode(fontNamed: StyleGuide.Typography.medium)
         sub.text      = "Em Construção..."
         sub.fontSize  = 20
         sub.fontColor = SKColor(white: 0.9, alpha: 0.8)
@@ -57,7 +57,7 @@ class VillageScene: SKScene {
         bg.lineWidth   = 1.5
         bg.name        = "menuBtn"
 
-        let lbl = SKLabelNode(fontNamed: "AvenirNext-Bold")
+        let lbl = SKLabelNode(fontNamed: StyleGuide.Typography.bold)
         lbl.text      = "← Menu"
         lbl.fontSize  = 20
         lbl.fontColor = .white
