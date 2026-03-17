@@ -128,7 +128,7 @@ class GameScene: SKScene {
     }
 
     private func setupSystems() {
-        difficultySystem = DifficultySystem(scene: cameraNode.scene!)
+        difficultySystem = DifficultySystem(node: cameraNode)
         spawnSystem      = SpawnSystem(scene: self, mapSize: mapSize)
         combatSystem     = CombatSystem(scene: self, player: player)
         coinSystem       = CoinSystem(scene: self, player: player)

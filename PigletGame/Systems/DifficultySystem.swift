@@ -17,10 +17,10 @@ class DifficultySystem {
 
     private var lastDifficultyStep: TimeInterval = 0
     private let stepInterval: TimeInterval = 30
-    private weak var scene: SKScene?
+    private weak var scene: SKNode?
 
-    init(scene: SKScene) {
-        self.scene = scene
+    init(node: SKNode) {
+        self.scene = node
     }
 
     // MARK: – Update
