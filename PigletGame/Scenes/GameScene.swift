@@ -296,7 +296,7 @@ class GameScene: SKScene {
 
                 let scene = GameOverScene(
                     score: self.score,
-                    coins: self.collectedCoins, // ✅ agora correto
+                    coins: self.coinCount,
                     kills: self.killCount,
                     time: Int(self.elapsedTime)
                 )
