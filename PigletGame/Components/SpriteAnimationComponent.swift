@@ -4,15 +4,20 @@ import GameplayKit
 class SpriteAnimationComponent: VisualComponent {
     let defaultSpriteName: String
     let walkingSpritesName: [String]
+    let timePerFrame: Double
+    let size: CGFloat
 
     private let walkingActionKey = "walkingAnimation"
 
-    init(`default`: String, walkingSprites: [String]) {
+    init(`default`: String, walkingSprites: [String], size: CGFloat = 32, timePerFrame: Double = 0.15) {
         let node = SKSpriteNode(imageNamed: `default`)
         node.texture?.filteringMode = .nearest
+        node.size = CGSize(width: size, height: size)
 
         self.defaultSpriteName = `default`
         self.walkingSpritesName = walkingSprites
+        self.size = size
+        self.timePerFrame = timePerFrame
         super.init(node: node)
     }
 
@@ -41,7 +46,7 @@ class SpriteAnimationComponent: VisualComponent {
         let textures = walkingSpritesName.map { SKTexture(imageNamed: $0) }
         textures.forEach { $0.filteringMode = .nearest }
 
-        let animation = SKAction.animate(with: textures, timePerFrame: 0.15)
+        let animation = SKAction.animate(with: textures, timePerFrame: timePerFrame)
         let loop = SKAction.repeatForever(animation)
         node.run(loop, withKey: walkingActionKey)
     }
