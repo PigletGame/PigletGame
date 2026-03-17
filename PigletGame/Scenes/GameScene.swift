@@ -281,20 +281,31 @@ class GameScene: SKScene {
         }
     }
 
-    // MARK: – Game Over
-
     private func triggerGameOver() {
         isGameOver = true
+
+        GameDataStore.shared.recordRun(
+            collectedCoins: collectedCoins,
+            kills: killCount
+        )
+
         run(SKAction.sequence([
             SKAction.wait(forDuration: 0.6),
             SKAction.run { [weak self] in
                 guard let self else { return }
-                let scene = GameOverScene(score: self.score,
-                                          kills: self.killCount,
-                                          time: Int(self.elapsedTime))
+
+                let scene = GameOverScene(
+                    score: self.score,
+                    coins: self.collectedCoins, // ✅ agora correto
+                    kills: self.killCount,
+                    time: Int(self.elapsedTime)
+                )
+
                 scene.scaleMode = .resizeFill
-                self.view?.presentScene(scene,
-                                        transition: SKTransition.fade(withDuration: 0.55))
+                self.view?.presentScene(
+                    scene,
+                    transition: SKTransition.fade(withDuration: 0.55)
+                )
             }
         ]))
     }

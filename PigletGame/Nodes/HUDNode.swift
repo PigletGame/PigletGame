@@ -136,6 +136,7 @@ class HUDNode: SKNode {
             statusNodes.append(h)
         }
 
+        // 🛡 Shield
         if hasShield {
             let shield = makeStatusIcon(named: "HUD/Shield")
             shield.position    = CGPoint(x: startX + 3 * iconSpacing, y: topY)
