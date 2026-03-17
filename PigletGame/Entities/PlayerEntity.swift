@@ -16,16 +16,12 @@ class PlayerEntity: GKEntity {
         addComponent(posComp)
         
         let animComp = SpriteAnimationComponent(
-            default: "Player/Default",
-            walkingSprites: [
-                "Player/Walking_01",
-                "Player/Walking_02",
-                "Player/Walking_03",
-                "Player/Walking_04",
-                "Player/Walking_05",
-                "Player/Walking_06",
-            ]
+            default: "Player/Standby",
+            walkingSprites:
+                Array(0...14).map{return "Player/Walking/\($0)"},
+            timePerFrame: 0.05
         )
+
         // Link back to entity for collisions
         animComp.node.name = "player"
         animComp.node.entity = self
