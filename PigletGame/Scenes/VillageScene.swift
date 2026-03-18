@@ -48,7 +48,7 @@ class VillageScene: SKScene {
         addChild(ground)
 
         // Title
-        let title = SKLabelNode(fontNamed: "AvenirNext-Heavy")
+        let title = SKLabelNode(fontNamed: StyleGuide.Typography.heavy)
         title.text      = "🏡  VILA"
         title.fontSize  = 40
         title.fontColor = .white
@@ -56,7 +56,7 @@ class VillageScene: SKScene {
         title.zPosition = 1
         addChild(title)
 
-        coinsLabel = SKLabelNode(fontNamed: "AvenirNext-Bold")
+        coinsLabel = SKLabelNode(fontNamed: StyleGuide.Typography.medium)
         coinsLabel.text = "🪙 Moedas: \(progress.totalCoins)"
         coinsLabel.fontSize = 21
         coinsLabel.fontColor = .white
@@ -65,7 +65,7 @@ class VillageScene: SKScene {
         coinsLabel.zPosition = 2
         addChild(coinsLabel)
 
-        killsLabel = SKLabelNode(fontNamed: "AvenirNext-Bold")
+        killsLabel = SKLabelNode(fontNamed: StyleGuide.Typography.medium)
         killsLabel.text = "☠ Kills: \(progress.totalKills)"
         killsLabel.fontSize = 21
         killsLabel.fontColor = .white
@@ -152,7 +152,7 @@ class VillageScene: SKScene {
         bg.lineWidth   = 1.5
         bg.name        = "menuBtn"
 
-        let lbl = SKLabelNode(fontNamed: "AvenirNext-Bold")
+        let lbl = SKLabelNode(fontNamed: StyleGuide.Typography.bold)
         lbl.text      = "← Menu"
         lbl.fontSize  = 20
         lbl.fontColor = .white
