@@ -63,7 +63,7 @@ class PlayerEntity: GKEntity {
 
     func updateStepsAudio(isWalking: Bool) {
         if isWalking && !isPlayingStepsAudio {
-            AudioService.shared.play("steps.wav", loop: true, volume: 0.1)
+            AudioService.shared.play("steps.wav", loop: true, volume: 0.03)
             isPlayingStepsAudio = true
         } else if (!isWalking && isPlayingStepsAudio) {
             AudioService.shared.stop("steps.wav")

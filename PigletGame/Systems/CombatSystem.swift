@@ -23,7 +23,7 @@ class CombatSystem {
         guard let scene else { return }
         lastShotTime = now
 
-        AudioService.shared.play("shot.wav", volume: 0.18)
+        AudioService.shared.play("shot.wav", volume: 0.08)
 
         let bullet = BulletEntity(position: position, direaction: direction, sprite: "PLACEHOLDER/arrow")
         scene.entityManager.addEntity(bullet)
@@ -75,7 +75,7 @@ class CombatSystem {
             spawnDeathFX(at: pos)
         }
         scene?.entityManager.removeEntity(entity)
-        AudioService.shared.play("tiger.m4a", volume: 0.18)
+        AudioService.shared.play("tiger.m4a", volume: 0.08)
 
         onScoreIncrease(25)
     }
@@ -116,7 +116,7 @@ class CombatSystem {
         let result = health.takeDamage()
         guard result == .hit else { return }
         
-        AudioService.shared.play("pig.m4a", volume: 0.18)
+        AudioService.shared.play("pig.m4a", volume: 0.08)
 
         UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
 

@@ -10,6 +10,7 @@ final class AudioService {
     static let shared = AudioService()
 
     private var players: [String: AVAudioPlayer] = [:]
+    private var isMuted: Bool = false
     private let queue = DispatchQueue(label: "AudioServiceQueue")
 
     private init() {}
@@ -22,6 +23,7 @@ final class AudioService {
     ///   - volume: Volume entre 0.0 e 1.0
     func play(_ name: String, loop: Bool = false, volume: Float = 1.0) {
         queue.async {
+            if self.isMuted { return }
             guard let url = Bundle.main.url(forResource: name, withExtension: nil) else {
                 print("[AudioService] Arquivo não encontrado: \(name)")
                 return
@@ -56,13 +58,26 @@ final class AudioService {
         }
     }
 
-    /// Para todos os áudios
-    func stopAll() {
+    /// Ativa ou desativa o mute global
+    func setMuted(_ muted: Bool) {
         queue.async {
-            for player in self.players.values {
-                player.stop()
+            self.isMuted = muted
+            if muted {
+                for player in self.players.values {
+                    player.stop()
+                }
+                self.players.removeAll()
             }
-            self.players.removeAll()
         }
+    }
+
+    /// Alterna entre mute e som
+    func toggleMute() {
+        setMuted(!isMuted)
+    }
+
+    /// Retorna o estado atual do mute
+    func isAudioMuted() -> Bool {
+        return isMuted
     }
 }
