@@ -54,6 +54,7 @@ class CoinSystem {
                       color: SKColor(red: 1, green: 0.3, blue: 0.3, alpha: 1))
         case .shield:
             player.shield.activate()
+            AudioService.shared.play("shield.mp3", volume: 0.3)
             onHUDUpdate()
             floatText("+ESCUDO 🛡", at: pos, color: .cyan)
         }

@@ -193,8 +193,10 @@ class OnboardingScene: SKScene {
 
         for node in nodes(at: location) where node.name == "playButton" {
             let scene = GameScene()
+            AudioService.shared.play("bumbo.mp3")
             scene.scaleMode = .resizeFill
             view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.5))
+            AudioService.shared.play("bumbo.mp3")
             return
         }
 

@@ -287,7 +287,7 @@ class GameScene: SKScene {
         isGameOver = true
         
         AudioService.shared.stop("inGameCombat.mp3")
-
+        AudioService.shared.play("gameOver.mp3")
 
         GameDataStore.shared.recordRun(
             collectedCoins: coinCount,
