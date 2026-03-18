@@ -44,7 +44,7 @@ class GameOverScene: SKScene {
         var y  = size.height * 0.85
 
         // Title
-        let titleLbl = makeLabel("💀 FIM DE JOGO", font: "AvenirNext-Heavy", size: 38,
+        let titleLbl = makeLabel("💀 FIM DE JOGO", font: StyleGuide.Typography.heavy, size: 38,
                                   color: SKColor(red: 0.95, green: 0.25, blue: 0.15, alpha: 1))
         titleLbl.position = CGPoint(x: cx, y: y)
         addChild(titleLbl)
@@ -77,14 +77,14 @@ class GameOverScene: SKScene {
         for (i, (label, value)) in stats.enumerated() {
             let row = CGPoint(x: cx, y: startY - CGFloat(i) * rowSpacing)
 
-            let lbl = makeLabel(label, font: "AvenirNext-Medium", size: 15,
+            let lbl = makeLabel(label, font: StyleGuide.Typography.medium, size: 15,
                                  color: SKColor(white: 0.75, alpha: 1))
             lbl.horizontalAlignmentMode = .right
             lbl.position = CGPoint(x: cx - 10, y: row.y)
             lbl.zPosition = 2
             addChild(lbl)
 
-            let val = makeLabel(value, font: "AvenirNext-Bold", size: 15,
+            let val = makeLabel(value, font: StyleGuide.Typography.bold, size: 15,
                                  color: .white)
             val.horizontalAlignmentMode = .left
             val.position = CGPoint(x: cx + 10, y: row.y)
@@ -129,7 +129,7 @@ class GameOverScene: SKScene {
         bg.lineWidth   = 1.5
         bg.name        = name
 
-        let lbl = SKLabelNode(fontNamed: "AvenirNext-Bold")
+        let lbl = SKLabelNode(fontNamed: StyleGuide.Typography.bold)
         lbl.text  = text
         lbl.fontSize  = 20
         lbl.fontColor = .white

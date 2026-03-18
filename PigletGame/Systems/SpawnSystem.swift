@@ -35,7 +35,7 @@ class SpawnSystem {
         guard existing < maxEnemies else { return }
 
         let pos      = randomEdgePoint(in: mapSize)
-        let enemy    = EnemyEntity(at: pos)
+        let enemy    = EnemyEntity(at: pos, hp: difficultyConfig.enemyHealth)
         scene.entityManager.addEntity(enemy)
     }
 

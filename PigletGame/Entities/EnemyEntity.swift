@@ -7,8 +7,10 @@ class EnemyEntity: GKEntity {
 
     let ai = AIComponent()
     let loot = LootComponent()
+    let health: HealthComponent
 
-    init(at position: CGPoint) {
+    init(at position: CGPoint, hp: Int = 1) {
+        self.health = HealthComponent(lives: hp)
         super.init()
         
         let posComp = PositionComponent(position: position)
@@ -27,6 +29,7 @@ class EnemyEntity: GKEntity {
         addComponent(animComp)
         addComponent(ai)
         addComponent(loot)
+        addComponent(health)
     }
 
     required init?(coder aDecoder: NSCoder) { fatalError() }

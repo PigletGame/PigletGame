@@ -45,25 +45,20 @@ class PlayerEntity: GKEntity {
     required init?(coder aDecoder: NSCoder) { fatalError() }
 
     func flashDamage(onComplete: @escaping () -> Void) {
-        if let node = VisualComponent.from(self)?.node {
-            let flash = SKAction.repeat(SKAction.sequence([
-                SKAction.colorize(with: .red, colorBlendFactor: 0.9, duration: 0.08),
-                SKAction.colorize(with: .clear, colorBlendFactor: 0, duration: 0.08)
-            ]), count: 7)
-            node.run(flash, completion: onComplete)
+        if let visual = self.component(ofType: VisualComponent.self) {
+            let sequence = SKAction.repeat(SKAction.run { [weak visual] in
+                visual?.flash(color: .red, duration: 0.15)
+            }, count: 6)
+            visual.node.run(sequence) {
+                onComplete()
+            }
         } else {
             onComplete()
         }
     }
 
     func flashColor(_ color: SKColor) {
-        if let node = VisualComponent.from(self)?.node {
-            let flash = SKAction.sequence([
-                SKAction.colorize(with: color, colorBlendFactor: 1, duration: 0.1),
-                SKAction.colorize(with: .clear, colorBlendFactor: 0, duration: 0.15)
-            ])
-            node.run(flash)
-        }
+        self.component(ofType: VisualComponent.self)?.flash(color: color, duration: 0.25)
     }
 
     func updateStepsAudio(isWalking: Bool) {

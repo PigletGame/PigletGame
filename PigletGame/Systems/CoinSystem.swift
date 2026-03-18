@@ -34,10 +34,11 @@ class CoinSystem {
     // MARK: – Collect
 
     func collectCoin(entity: GKEntity, at pos: CGPoint, onScoreIncrease: (Int) -> Void) {
+        guard let coin = entity as? CoinEntity else { return }
         scene?.entityManager.removeEntity(entity)
         AudioService.shared.play("coins.wav", volume: 0.18)
-        onScoreIncrease(CoinEntity.value)
-        floatText("+\(CoinEntity.value)", at: pos,
+        onScoreIncrease(coin.value)
+        floatText("+1", at: pos,
                   color: SKColor(red: 1, green: 0.85, blue: 0.1, alpha: 1))
     }
 
@@ -87,7 +88,7 @@ class CoinSystem {
 
     private func floatText(_ text: String, at pos: CGPoint, color: SKColor) {
         guard let scene else { return }
-        let lbl = SKLabelNode(fontNamed: "AvenirNext-Bold")
+        let lbl = SKLabelNode(fontNamed: StyleGuide.Typography.bold)
         lbl.text      = text
         lbl.fontSize  = 13
         lbl.fontColor = color
