@@ -12,7 +12,10 @@ struct ContentView: View {
     var body: some View {
         GeometryReader { geometry in
             let scene: SKScene = {
-                let scene = MenuScene()
+//                let scene: SKScene = OnboardingScene.hasSeenOnboarding
+//                    ? MenuScene()
+//                    : OnboardingScene()
+                let scene = OnboardingScene()
                 scene.size = geometry.size
                 scene.scaleMode = .aspectFill
                 return scene
