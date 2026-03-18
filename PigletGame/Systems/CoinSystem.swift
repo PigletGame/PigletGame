@@ -36,6 +36,7 @@ class CoinSystem {
     func collectCoin(entity: GKEntity, at pos: CGPoint, onScoreIncrease: (Int) -> Void) {
         guard let coin = entity as? CoinEntity else { return }
         scene?.entityManager.removeEntity(entity)
+        AudioService.shared.play("coins.wav", volume: 0.18)
         onScoreIncrease(coin.value)
         floatText("+1", at: pos,
                   color: SKColor(red: 1, green: 0.85, blue: 0.1, alpha: 1))
