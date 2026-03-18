@@ -1,4 +1,5 @@
 import SpriteKit
+import SwiftUI
 
 class GameOverScene: SKScene {
 
@@ -6,12 +7,14 @@ class GameOverScene: SKScene {
     private let finalCoins: Int
     private let finalKills: Int
     private let finalTime: Int
+    var dismiss: DismissAction?
 
-    init(score: Int, coins: Int, kills: Int, time: Int) {
+    init(score: Int, coins: Int, kills: Int, time: Int, dismiss: DismissAction? = nil) {
         self.finalScore = score
         self.finalCoins = coins
         self.finalKills = kills
         self.finalTime  = time
+        self.dismiss = dismiss
         super.init(size: .zero)
     }
 
@@ -156,6 +159,7 @@ class GameOverScene: SKScene {
 
                 AdManager.shared.showAd {
                     let scene = GameScene()
+//                    scene.dismiss = self.dismiss
                     scene.scaleMode = .resizeFill
                     self.view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.45))
                 }
@@ -163,9 +167,7 @@ class GameOverScene: SKScene {
                 return
             }
             if node.name == "menu" {
-                let scene = MenuScene()
-                scene.scaleMode = .resizeFill
-                view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.45))
+                self.dismiss?()
                 return
             }
         }

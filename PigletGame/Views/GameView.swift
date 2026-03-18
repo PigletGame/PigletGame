@@ -8,23 +8,26 @@
 import SwiftUI
 import SpriteKit
 
-struct ContentView: View {
+struct GameView: View {
+    @Environment(\.dismiss) var dismiss
+
     var body: some View {
         GeometryReader { geometry in
             let scene: SKScene = {
-                let scene: SKScene = OnboardingScene.hasSeenOnboarding
-                    ? MenuScene()
-                    : OnboardingScene()
-                scene.size = geometry.size
-                scene.scaleMode = .aspectFill
+                let scene = GameScene(size: geometry.size)
+//                scene.dismiss = dismiss
+                scene.scaleMode = .resizeFill
                 return scene
             }()
 
             SpriteView(scene: scene)
                 .ignoresSafeArea()
         }
+        .ignoresSafeArea()
+        .navigationBarBackButtonHidden()
     }
 }
+
 #Preview {
-    ContentView()
+    GameView()
 }

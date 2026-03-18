@@ -1,4 +1,5 @@
 import SpriteKit
+import SwiftUI
 import GameplayKit
 
 class GameScene: SKScene {
@@ -39,6 +40,8 @@ class GameScene: SKScene {
         .init(width: (Double(mapWidthInTiles) * tileWidth), height: (Double(mapHeightInTiles) * tileWidth))
     }
 
+    var dismiss: DismissAction?
+
     override init() {
         entityManager = .init(baseNode: worldNode)
         super.init()
@@ -63,15 +66,13 @@ class GameScene: SKScene {
 
         self.camera = cameraNode
         worldNode.addChild(cameraNode)
-        cameraNode.setScale(0.5)
+        cameraNode.setScale(1)
 
         setupLevel()
         setupJoysticks()
         setupPlayer()
         setupHUD()
         setupSystems()
-        
-        AudioService.shared.play("inGameCombat.mp3", loop: true, volume: 0.12)
     }
 
     // MARK: – Setup
@@ -255,9 +256,7 @@ class GameScene: SKScene {
         }
         
         let multiplier = difficultySystem.config.coinsPerKill
-        for _ in 0..<multiplier {
-            coinSystem.dropLoot(at: pos)
-        }
+        coinSystem.dropLoot(at: pos, multiplier: multiplier)
     }
 
     private func handlePlayerDamage() {
@@ -283,21 +282,14 @@ class GameScene: SKScene {
         }
     }
 
+    // MARK: – Game Over
+
     private func triggerGameOver() {
         isGameOver = true
-        
-        AudioService.shared.stop("inGameCombat.mp3")
-        AudioService.shared.play("gameOver.mp3")
-
-        GameDataStore.shared.recordRun(
-            collectedCoins: coinCount,
-            kills: killCount
-        )
-
         run(SKAction.sequence([
             SKAction.wait(forDuration: 0.6),
             SKAction.run { [weak self] in
-                guard let self else { return }
+                guard let self else {return}
 
                 let scene = GameOverScene(
                     score: self.score,
@@ -305,12 +297,11 @@ class GameScene: SKScene {
                     kills: self.killCount,
                     time: Int(self.elapsedTime)
                 )
+                scene.dismiss = self.dismiss
 
                 scene.scaleMode = .resizeFill
-                self.view?.presentScene(
-                    scene,
-                    transition: SKTransition.fade(withDuration: 0.55)
-                )
+                self.view?.presentScene(scene,
+                                        transition: SKTransition.fade(withDuration: 0.55))
             }
         ]))
     }
