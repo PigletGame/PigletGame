@@ -14,8 +14,8 @@ struct GameView: View {
     var body: some View {
         GeometryReader { geometry in
             let scene: SKScene = {
-                let scene = GameScene(size: geometry.size)
-//                scene.dismiss = dismiss
+                let scene = VillageScene(size: geometry.size)
+                scene.dismiss = dismiss
                 scene.scaleMode = .resizeFill
                 return scene
             }()

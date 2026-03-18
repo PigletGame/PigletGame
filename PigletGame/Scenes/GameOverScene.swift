@@ -159,7 +159,7 @@ class GameOverScene: SKScene {
 
                 AdManager.shared.showAd {
                     let scene = GameScene()
-//                    scene.dismiss = self.dismiss
+                    scene.dismiss = self.dismiss
                     scene.scaleMode = .resizeFill
                     self.view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.45))
                 }
