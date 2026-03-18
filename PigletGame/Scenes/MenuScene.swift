@@ -7,6 +7,8 @@ class MenuScene: SKScene {
     override func didMove(to view: SKView) {
         backgroundColor = SKColor(red: 0.06, green: 0.04, blue: 0.12, alpha: 1)
         layoutIfNeeded(force: true)
+        
+        AudioService.shared.play("menu.mp3")
     }
 
     override func didChangeSize(_ oldSize: CGSize) {
@@ -138,12 +140,14 @@ class MenuScene: SKScene {
     }
 
     private func presentGame() {
+        AudioService.shared.stop("menu.mp3")
         let scene = GameScene()
         scene.scaleMode = .resizeFill
         view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.5))
     }
 
     private func presentVillage() {
+//        AudioService.shared.stop("menu.mp3")
         let scene = VillageScene()
         scene.scaleMode = .resizeFill
         view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.5))

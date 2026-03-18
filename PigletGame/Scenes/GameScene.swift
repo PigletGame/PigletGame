@@ -70,6 +70,8 @@ class GameScene: SKScene {
         setupPlayer()
         setupHUD()
         setupSystems()
+        
+        AudioService.shared.play("inGameCombat.mp3", loop: true, volume: 0.12)
     }
 
     // MARK: – Setup
@@ -283,6 +285,9 @@ class GameScene: SKScene {
 
     private func triggerGameOver() {
         isGameOver = true
+        
+        AudioService.shared.stop("inGameCombat.mp3")
+
 
         GameDataStore.shared.recordRun(
             collectedCoins: coinCount,
