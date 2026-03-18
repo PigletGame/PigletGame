@@ -36,6 +36,7 @@ class GameScene: SKScene {
     let tileWidth: CGFloat = 16
     let mapWidthInTiles = 30
     let mapHeightInTiles = 30
+    let mapPadding = 100
     var mapSize: CGSize {
         .init(width: (Double(mapWidthInTiles) * tileWidth), height: (Double(mapHeightInTiles) * tileWidth))
     }
@@ -78,19 +79,57 @@ class GameScene: SKScene {
     // MARK: – Setup
 
     private func setupLevel() {
-        // Create the Floor
-        for x in 0..<mapWidthInTiles {
-            for y in 0..<mapHeightInTiles {
-                let grass = SKSpriteNode(imageNamed: "Tile/Grass/Middle")
-                grass.texture?.filteringMode = .nearest
-                grass.anchorPoint = .zero
+        for x in -mapPadding..<mapWidthInTiles+mapPadding {
+            for y in -mapPadding..<mapHeightInTiles+mapPadding {
+                var textureName = "Tile/Grass"
+                var xScale: CGFloat = 1.0
+                
+                // Pebble center
+                if x >= 0 && x <= mapWidthInTiles && y >= -1 && y <= mapHeightInTiles {
+                    textureName = "Tile/Pebble"
+                }
+
+                // Vertical Fences
+                else if (x == -1 ||  x == mapWidthInTiles + 1)  && y >= -1 && y <= mapHeightInTiles {
+                    textureName = "Tile/Fence_TD"
+                }
+
+                // Horizontal Fences
+                else if (y == -2  || y == mapHeightInTiles + 1) && x >= 0 && x <= mapWidthInTiles {
+                    textureName = "Tile/Fence_LR"
+                }
+
+                // Corners Bottom
+                else if x == -1 && y == -2 {
+                    textureName = "Tile/Fence_Corner_Bottom"
+                } else if x == mapWidthInTiles + 1 && y == -2 {
+                    textureName = "Tile/Fence_Corner_Bottom"
+                    xScale = -1.0
+                }
+
+                // Corners Top
+                else if x == -1 && y == mapHeightInTiles + 1 {
+                    textureName = "Tile/Fence_Corner_Top"
+                } else if x == mapWidthInTiles + 1 && y == mapHeightInTiles + 1 {
+                    textureName = "Tile/Fence_Corner_Top"
+                    xScale = -1.0
+                }
+
+                let tile = SKSpriteNode(imageNamed: textureName)
+                tile.texture?.filteringMode = .nearest
+                tile.anchorPoint = .zero
+                tile.xScale = xScale
 
                 let xPosition = CGFloat(x) * tileWidth
                 let yPosition = CGFloat(y) * tileWidth
+                
+                // Adjust position if flipped horizontally since anchor is at (0,0)
+                let finalX = xScale < 0 ? xPosition + tileWidth : xPosition
 
-                grass.position = CGPoint(x: xPosition, y: yPosition)
-                grass.zPosition = -10
-                worldNode.addChild(grass)
+                tile.position = CGPoint(x: finalX, y: yPosition)
+                tile.zPosition = -10
+                tile.size = .init(width: tileWidth, height: tileWidth)
+                worldNode.addChild(tile)
             }
         }
     }
