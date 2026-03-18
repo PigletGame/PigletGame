@@ -43,9 +43,7 @@ class LootAnimationComponent: GKComponent {
         let fallDown = SKAction.moveBy(x: 0, y: -jumpHeight, duration: 0.23)
         fallDown.timingMode = .easeIn
         let jumpSequence = SKAction.sequence([jumpUp, fallDown])
-        
-        let jumpAndScale = SKAction.group([jumpSequence, scaleSequence])
-        
+                
         // 4. Lifecycle (Wait and Remove)
         let waitDuration = max(0.1, lifetime - 1.0)
         let blink = SKAction.repeat(SKAction.sequence([
@@ -54,7 +52,7 @@ class LootAnimationComponent: GKComponent {
         ]), count: 3)
         
         let fullSequence = SKAction.sequence([
-            SKAction.group([travel, jumpAndScale]),
+            SKAction.group([travel, jumpSequence]),
             SKAction.wait(forDuration: waitDuration),
             blink,
             SKAction.run { [weak visual] in

@@ -285,7 +285,7 @@ class GameScene: SKScene {
         isGameOver = true
 
         GameDataStore.shared.recordRun(
-            collectedCoins: collectedCoins,
+            collectedCoins: coinCount,
             kills: killCount
         )
 
