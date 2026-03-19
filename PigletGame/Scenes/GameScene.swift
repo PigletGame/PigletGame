@@ -257,7 +257,7 @@ class GameScene: SKScene {
                             handleEnemyKilled(enemy)
                         } else {
                             // Visual feedback for hit
-                            enemy.component(ofType: VisualComponent.self)?.flash(color: .red, duration: 0.1)
+                            VisualComponent.from(enemy)?.flash(color: .red, duration: 0.1)
                         }
                     }
                     break
