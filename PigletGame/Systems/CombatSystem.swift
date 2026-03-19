@@ -1,6 +1,5 @@
 import SpriteKit
 import GameplayKit
-import UIKit
 
 class CombatSystem {
 
@@ -110,6 +109,7 @@ class CombatSystem {
 
         if shield.absorbHit() {
             player.flashColor(.cyan)
+            HapticsService.shared.vibrate(with: .soft)
             return
         }
 
@@ -118,13 +118,12 @@ class CombatSystem {
         
         AudioService.shared.play("pig.m4a", volume: 0.08)
 
-        UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
-
         if health.isDead {
-            UINotificationFeedbackGenerator().notificationOccurred(.error)
             onGameOver()
             return
         }
+
+        HapticsService.shared.vibrate(with: .medium)
 
         health.setInvincible(true)
         player.flashDamage {

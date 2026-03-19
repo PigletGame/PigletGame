@@ -253,6 +253,7 @@ class GameScene: SKScene {
                     
                     let result = enemy.health.takeDamage()
                     if result == .hit {
+                        HapticsService.shared.vibrate(with: .light)
                         if enemy.health.isDead {
                             handleEnemyKilled(enemy)
                         } else {
@@ -325,6 +326,7 @@ class GameScene: SKScene {
 
     private func triggerGameOver() {
         isGameOver = true
+        HapticsService.shared.vibrate(with: .heavy)
         run(SKAction.sequence([
             SKAction.wait(forDuration: 0.6),
             SKAction.run { [weak self] in
