@@ -10,23 +10,25 @@ import SwiftUI
 
 struct PigletButton: View {
     enum ButtonSize {
-        case small, medium, large
+        case icon, small, medium, large
 
         var width: Double {
             switch self {
-            case .small: return 60
-            case .medium: return 127
+            case .icon: return 60
+            case .small: return 127
+            case .medium: return 157
             case .large: return 270
             }
         }
 
         var height: Double {
-            self == .small ? 44 : 64
+            self == .icon ? 44 : 64
         }
 
         var fontSize: Double {
             switch self {
-            case .small: return 0 
+            case .icon: return 0
+            case .small: return 17
             case .medium: return 17
             case .large: return 24
             }
@@ -60,9 +62,13 @@ struct PigletButton: View {
     var icon: String
     var color: ColorStyle = .red
     var onTap: () -> Void
+    @State private var isPressed = false
 
     var body: some View {
-        Button(action: onTap) {
+        Button(action: {
+            AudioService.shared.play("botao2.m4a", volume: 0.18)
+            onTap()
+        }) {
             content
                 .foregroundStyle(color.foreground)
                 .frame(width: size.width, height: size.height)
@@ -76,11 +82,11 @@ struct PigletButton: View {
                 )
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(size != .small ? Color.black : Color.clear)
+                        .fill(size != .icon ? Color.black : Color.clear)
                         .offset(x: 3, y: 3)
                 )
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PressableStyle(isPressed: $isPressed))
     }
 
     @ViewBuilder
@@ -98,17 +104,43 @@ struct PigletButton: View {
                 Image(systemName: icon)
                     .font(.system(size: 15, weight: .black))
 
-                if size != .small {
+                if size != .icon {
                     Text(text)
                         .font(.custom("Geist-Bold", size: size.fontSize))
                 }
             }
         }
     }
+    
+    struct PressableStyle: ButtonStyle {
+        @Binding var isPressed: Bool
+        
+        func makeBody(configuration: Configuration) -> some View {
+            configuration.label
+                .onChange(of: configuration.isPressed) { _, newValue in
+                    isPressed = newValue
+                }
+        }
+    }
 }
 
 #Preview {
-    PigletButton(size: .large, text: "Play", icon: "poweroutlet.type.a.fill", color: .yellow) {
+    HStack(spacing: 16) {
+        PigletButton(
+            size: .medium,
+            text: "Return to Menu",
+            icon: "arrowshape.turn.up.backward.fill"
+        ) {
+            // showVillage = true
+        }
 
+        PigletButton(
+            size: .medium,
+            text: "Play Again",
+            icon: "poweroutlet.type.a.fill",
+            color: .yellow
+        ) {
+            // showGame = true
+        }
     }
 }
