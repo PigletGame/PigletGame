@@ -3,6 +3,7 @@ import SwiftUI
 
 class OnboardingScene: SKScene {
     var dismiss: DismissAction?
+    var onComplete: (() -> Void)?
 
     static let seenKey = "hasSeenOnboarding"
     let linesPerPage = 4
@@ -53,7 +54,7 @@ class OnboardingScene: SKScene {
 
     private func buildScene() {
         removeAllChildren()
-        backgroundColor = .black
+        backgroundColor = UIColor(StyleGuide.Colors.red)
 
         currentPageIndex = 0
         pageTexts = buildPages(from: storyLines, linesPerPage: linesPerPage)
@@ -87,7 +88,7 @@ class OnboardingScene: SKScene {
         storyLabel = text
 
         let hint = SKLabelNode(fontNamed: StyleGuide.Typography.medium)
-        hint.text = "tap to continue"
+        hint.text = "Tap to continue"
         hint.fontSize = max(15, min(20, size.height * 0.04))
         hint.fontColor = SKColor(white: 0.68, alpha: 1)
         hint.horizontalAlignmentMode = .center
@@ -118,7 +119,6 @@ class OnboardingScene: SKScene {
         hintLabel?.isHidden = isLastPage
 
         if isLastPage {
-            UserDefaults.standard.set(true, forKey: OnboardingScene.seenKey)
             showPlayButtonIfNeeded()
         } else {
             playButton?.removeFromParent()
@@ -154,7 +154,7 @@ class OnboardingScene: SKScene {
 
         let button = makePlayButton()
         button.alpha = 0
-        button.position = CGPoint(x: size.width / 2, y: size.height / 4)
+        button.position = CGPoint(x: size.width / 2, y: size.height * 0.20)
         addChild(button)
         playButton = button
 
@@ -166,22 +166,57 @@ class OnboardingScene: SKScene {
         let container = SKNode()
         container.name = "playButton"
 
-        let bg = SKShapeNode(rectOf: CGSize(width: 220, height: 56), cornerRadius: 12)
-        bg.fillColor = SKColor(red: 0.20, green: 0.62, blue: 0.28, alpha: 1)
-        bg.strokeColor = .white
-        bg.lineWidth = 2
+        let buttonSize = CGSize(width: 270, height: 64)
+        let cornerRadius: CGFloat = 8
+
+        let shadow = SKShapeNode(rectOf: buttonSize, cornerRadius: cornerRadius)
+        shadow.fillColor = .black
+        shadow.strokeColor = .clear
+        shadow.position = CGPoint(x: 3, y: -3)
+        shadow.name = "playButton"
+
+        let bg = SKShapeNode(rectOf: buttonSize, cornerRadius: cornerRadius)
+        bg.fillColor = SKColor(StyleGuide.Colors.yellow)
+        bg.strokeColor = .black
+        bg.lineWidth = 3
         bg.name = "playButton"
 
-        let label = SKLabelNode(fontNamed: StyleGuide.Typography.bold)
-        label.text = "PLAY"
+        if let iconTexture = makeSFSymbolTexture(named: "", pointSize: 15, weight: .black, tintColor: .black) {
+            let icon = SKSpriteNode(texture: iconTexture)
+            icon.position = CGPoint(x: -50, y: 0)
+            icon.zPosition = 1
+            icon.name = "playButton"
+            container.addChild(icon)
+        }
+
+        let label = SKLabelNode(fontNamed: "Geist-Black")
+        label.text = "Play"
         label.fontSize = 24
-        label.fontColor = .white
+        label.fontColor = .black
         label.verticalAlignmentMode = .center
+        label.horizontalAlignmentMode = .center
+        label.position = CGPoint(x: 0, y: 0)
         label.name = "playButton"
 
+        container.addChild(shadow)
         container.addChild(bg)
         container.addChild(label)
         return container
+    }
+
+    private func makeSFSymbolTexture(named symbolName: String,
+                                     pointSize: CGFloat,
+                                     weight: UIImage.SymbolWeight,
+                                     tintColor: UIColor) -> SKTexture? {
+        let config = UIImage.SymbolConfiguration(pointSize: pointSize, weight: weight)
+        guard let image = UIImage(systemName: symbolName, withConfiguration: config)?
+            .withTintColor(tintColor, renderingMode: .alwaysOriginal) else {
+            return nil
+        }
+
+        let texture = SKTexture(image: image)
+        texture.filteringMode = .nearest
+        return texture
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -189,12 +224,8 @@ class OnboardingScene: SKScene {
         let location = touch.location(in: self)
 
         for node in nodes(at: location) where node.name == "playButton" {
-            let scene = GameScene()
-            scene.dismiss = self.dismiss
             AudioService.shared.play("bumbo.mp3")
-            scene.scaleMode = .resizeFill
-            view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.5))
-            AudioService.shared.play("bumbo.mp3")
+            onComplete?()
             return
         }
 

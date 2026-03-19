@@ -17,7 +17,7 @@ class CoinEntity: GKEntity {
         let rootNode = SKNode()
         let sprite = SKSpriteNode(imageNamed: "HUD/Coin")
         sprite.texture?.filteringMode = .nearest
-        sprite.size = CGSize(width: 24, height: 24)
+        sprite.size = CGSize(width: 15, height: 15)
         sprite.zPosition = 5
         sprite.name = "coin"
         sprite.entity = self
