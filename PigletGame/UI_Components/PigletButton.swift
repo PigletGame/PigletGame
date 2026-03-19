@@ -10,40 +10,39 @@ import SwiftUI
 struct PigletButton: View {
     enum ButtonSize {
         case icon, small, medium, large, largeTwoLine, smallWide
-
+        
         var width: Double {
             switch self {
             case .icon: return 60
-                case .small: return 127
-                case .medium: return 157
-                case .large: return 270
-                case .largeTwoLine: return 311
-                case .smallWide: return 200
+            case .small: return 127
+            case .medium: return 157
+            case .large: return 270
+            case .largeTwoLine: return 311
+            case .smallWide: return 200
             }
         }
-
         var height: Double {
             switch self {
-                case .small: return 44
-                case .medium, .large: return 64
-                case .largeTwoLine: return 0
-                case .smallWide: return 40
+            case .icon: return 44
+            case .small, .medium, .large: return 64
+            case .largeTwoLine: return 0
+            case .smallWide: return 40
             }
         }
-
+        
         var fontSize: Double {
             switch self {
             case .icon: return 0
             case .small, .medium, .smallWide: return 17
             case .large, .largeTwoLine: return 24
-            
+                
             }
         }
     }
-
+    
     enum ColorStyle {
         case red, yellow, disabledButton
-
+        
         var background: Color {
             switch self {
             case .red:
@@ -54,7 +53,7 @@ struct PigletButton: View {
                 StyleGuide.Colors.disabledButton
             }
         }
-
+        
         var foreground: Color {
             switch self {
             case .red:
@@ -66,15 +65,15 @@ struct PigletButton: View {
             }
         }
     }
-
+    
     var size: ButtonSize = .large
     var text: String
     var icon: String
     var color: ColorStyle = .red
-    var onTap: () -> Void
     var price: Int? = nil
+    var onTap: () -> Void
     @State private var isPressed = false
-
+    
     var body: some View {
         Button(action: {
             AudioService.shared.play("botao1.m4a", volume: 0.18)
@@ -102,7 +101,7 @@ struct PigletButton: View {
         }
         .buttonStyle(PressableStyle(isPressed: $isPressed))
     }
-
+    
     @ViewBuilder
     private var content: some View {
         if size == .large || size == .largeTwoLine {
@@ -133,7 +132,7 @@ struct PigletButton: View {
             VStack(spacing: 6) {
                 Image(systemName: icon)
                     .font(.system(size: 15, weight: .black))
-
+                
                 if size != .icon {
                     Text(text)
                         .font(.custom("Geist-Bold", size: size.fontSize))
@@ -141,10 +140,10 @@ struct PigletButton: View {
             }
         }
     }
-
+    
     struct PressableStyle: ButtonStyle {
         @Binding var isPressed: Bool
-
+        
         func makeBody(configuration: Configuration) -> some View {
             configuration.label
                 .onChange(of: configuration.isPressed) { _, newValue in
@@ -155,7 +154,7 @@ struct PigletButton: View {
 }
 
 #Preview {
-
+    
     PigletButton(
         size: .medium,
         text: "Play Again",

@@ -52,7 +52,7 @@ struct MainMenu: View {
                 }
 
                 PigletButton(
-                    size: .small,
+                    size: .icon,
                     text: "",
                     icon: isHapticsEnabled ? "hand.tap.fill" : "hand.raised.slash.fill",
                     color: isHapticsEnabled ? .red : .disabledButton

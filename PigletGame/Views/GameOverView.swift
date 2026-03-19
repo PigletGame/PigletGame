@@ -33,6 +33,11 @@ struct GameOverView: View {
         self.finalKills = kills
         self.finalTime = time
         self.dismiss = dismiss
+    
+        GameDataStore.shared.recordRun(
+            collectedCoins: finalCoins,
+            kills: finalKills
+        )
     }
     
     private func formatTime(_ seconds: Int) -> String {
