@@ -1,7 +1,7 @@
 import SpriteKit
 import GameplayKit
 
-class CoinSystem {
+class ItemPickupSystem {
 
     private weak var scene: GameScene?
     private weak var player: PlayerEntity?
@@ -50,13 +50,13 @@ class CoinSystem {
         case .life:
             player.health.heal()
             onHUDUpdate()
-            floatText("+VIDA ❤️", at: pos,
+            floatText("+HEALTH", at: pos,
                       color: SKColor(red: 1, green: 0.3, blue: 0.3, alpha: 1))
         case .shield:
             player.shield.activate()
             AudioService.shared.play("shield.mp3", volume: 0.3)
             onHUDUpdate()
-            floatText("+ESCUDO 🛡", at: pos, color: .cyan)
+            floatText("+SHIELD", at: pos, color: .cyan)
         }
     }
 
