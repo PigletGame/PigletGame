@@ -19,7 +19,7 @@ class GameScene: SKScene {
 
     private var spawnSystem:      SpawnSystem!
     private var combatSystem:     CombatSystem!
-    private var coinSystem:       CoinSystem!
+    private var coinSystem:       ItemPickupSystem!
     private var difficultySystem: DifficultySystem!
 
     // MARK: – State
@@ -191,7 +191,7 @@ class GameScene: SKScene {
         difficultySystem = DifficultySystem(node: cameraNode, sceneSize: size)
         spawnSystem      = SpawnSystem(scene: self, mapSize: mapSize)
         combatSystem     = CombatSystem(scene: self, player: player)
-        coinSystem       = CoinSystem(scene: self, player: player)
+        coinSystem       = ItemPickupSystem(scene: self, player: player)
     }
 
     // MARK: – HUD
