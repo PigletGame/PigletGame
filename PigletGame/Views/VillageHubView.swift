@@ -76,7 +76,7 @@ struct VillageHubView: View {
                     .disabled(!canAfford)
                     .opacity(canAfford ? 1 : 0.5)
 
-                    PigletButton(size: .smallWide, text: "See the Village", icon: "house.fill") {
+                    PigletButton(size: .smallWide, text: "See the Village", icon: "house.lodge.fill") {
                         showVillage = true
                     }
                 }
