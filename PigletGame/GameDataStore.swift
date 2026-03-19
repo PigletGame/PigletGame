@@ -3,7 +3,7 @@ import SwiftData
 
 @Model
 final class PlayerProgress {
-    @Attribute(.unique) var id: String
+    var id: String
     var totalCoins: Int
     var totalKills: Int
 
@@ -16,7 +16,7 @@ final class PlayerProgress {
 
 @Model
 final class VillageSlotState {
-    @Attribute(.unique) var slotIndex: Int
+    var slotIndex: Int
     var cost: Int
     var isPurchased: Bool
 
@@ -29,6 +29,9 @@ final class VillageSlotState {
 
 @MainActor
 final class GameDataStore {
+
+    // MARK: – Tipos públicos
+
     struct ProgressSnapshot {
         let totalCoins: Int
         let totalKills: Int
@@ -47,47 +50,65 @@ final class GameDataStore {
         case unavailable
     }
 
-    static let shared = GameDataStore()
+    // MARK: – Singleton
 
+    static let shared = GameDataStore()
     private init() {}
 
     private var container: ModelContainer?
 
-    private let defaultSlots: [(index: Int, cost: Int)] = [
-        (0, 20),
-        (1, 35),
-        (2, 55),
-        (3, 80),
-        (4, 120),
-        (5, 170)
-    ]
+    // MARK: – Configuração
 
     func configure(container: ModelContainer) {
         self.container = container
         bootstrapIfNeeded()
     }
 
+    // MARK: – Custo dinâmico
+
+    func slotCost(for index: Int) -> Int {
+        Int(20.0 * pow(1.12, Double(index)))
+    }
+
+    // MARK: – Leitura
     func progressSnapshot() -> ProgressSnapshot {
-        guard let context else { return ProgressSnapshot(totalCoins: 0, totalKills: 0) }
-        bootstrapIfNeeded()
+        guard let context else {
+            return ProgressSnapshot(totalCoins: 0, totalKills: 0)
+        }
         guard let progress = fetchOrCreateProgress(in: context) else {
             return ProgressSnapshot(totalCoins: 0, totalKills: 0)
         }
-        return ProgressSnapshot(totalCoins: progress.totalCoins, totalKills: progress.totalKills)
+        return ProgressSnapshot(
+            totalCoins: progress.totalCoins,
+            totalKills: progress.totalKills
+        )
     }
 
     func slotSnapshots() -> [SlotSnapshot] {
         guard let context else { return [] }
-        bootstrapIfNeeded()
-        let descriptor = FetchDescriptor<VillageSlotState>(sortBy: [SortDescriptor(\.slotIndex)])
+        let descriptor = FetchDescriptor<VillageSlotState>(
+            sortBy: [SortDescriptor(\.slotIndex)]
+        )
         let slots = (try? context.fetch(descriptor)) ?? []
-        return slots.map { SlotSnapshot(index: $0.slotIndex, cost: $0.cost, isPurchased: $0.isPurchased) }
+        return slots.map {
+            SlotSnapshot(index: $0.slotIndex, cost: $0.cost, isPurchased: $0.isPurchased)
+        }
     }
+
+    func purchasedSlotsCount() -> Int {
+        guard let context else { return 0 }
+        let descriptor = FetchDescriptor<VillageSlotState>()
+        let slots = (try? context.fetch(descriptor)) ?? []
+        return slots.filter { $0.isPurchased }.count
+    }
+
+    // MARK: – Escrita
 
     @discardableResult
     func recordRun(collectedCoins: Int, kills: Int) -> ProgressSnapshot {
-        guard let context else { return ProgressSnapshot(totalCoins: 0, totalKills: 0) }
-        bootstrapIfNeeded()
+        guard let context else {
+            return ProgressSnapshot(totalCoins: 0, totalKills: 0)
+        }
         guard let progress = fetchOrCreateProgress(in: context) else {
             return ProgressSnapshot(totalCoins: 0, totalKills: 0)
         }
@@ -96,31 +117,47 @@ final class GameDataStore {
         progress.totalKills += max(0, kills)
         saveContext(context)
 
-        return ProgressSnapshot(totalCoins: progress.totalCoins, totalKills: progress.totalKills)
+        return ProgressSnapshot(
+            totalCoins: progress.totalCoins,
+            totalKills: progress.totalKills
+        )
     }
 
     func purchaseSlot(index: Int) -> PurchaseResult {
         guard let context else { return .unavailable }
-        bootstrapIfNeeded()
 
-        let slotDescriptor = FetchDescriptor<VillageSlotState>(predicate: #Predicate { $0.slotIndex == index })
-        guard let slot = try? context.fetch(slotDescriptor).first else { return .unavailable }
-        if slot.isPurchased { return .alreadyOwned }
+        // Só permite compra em sequência
+        let currentCount = purchasedSlotsCount()
+        guard index == currentCount else { return .unavailable }
 
-        guard let progress = fetchOrCreateProgress(in: context) else { return .unavailable }
-        if progress.totalCoins < slot.cost {
-            return .insufficientFunds(required: slot.cost, current: progress.totalCoins)
+        // Verifica se já existe (proteção contra double-tap)
+        let existingDescriptor = FetchDescriptor<VillageSlotState>(
+            predicate: #Predicate { $0.slotIndex == index }
+        )
+        if let existing = try? context.fetch(existingDescriptor).first {
+            return existing.isPurchased ? .alreadyOwned : .unavailable
         }
 
-        progress.totalCoins -= slot.cost
-        slot.isPurchased = true
-        saveContext(context)
-        let purchasedCount = purchasedSlotsCount()
+        guard let progress = fetchOrCreateProgress(in: context) else {
+            return .unavailable
+        }
 
-        GameCenterManager.shared.submitScore(purchasedCount)
+        let cost = slotCost(for: index)
+
+        guard progress.totalCoins >= cost else {
+            return .insufficientFunds(required: cost, current: progress.totalCoins)
+        }
+
+        progress.totalCoins -= cost
+        context.insert(VillageSlotState(slotIndex: index, cost: cost, isPurchased: true))
+        saveContext(context)
+
+        GameCenterManager.shared.submitScore(index + 1)
 
         return .purchased(remainingCoins: progress.totalCoins)
     }
+
+    // MARK: – Privado
 
     private var context: ModelContext? {
         container?.mainContext
@@ -128,26 +165,17 @@ final class GameDataStore {
 
     private func bootstrapIfNeeded() {
         guard let context else { return }
-
         _ = fetchOrCreateProgress(in: context)
-
-        let descriptor = FetchDescriptor<VillageSlotState>()
-        let existingSlots = (try? context.fetch(descriptor)) ?? []
-        let existingIndexes = Set(existingSlots.map(\.slotIndex))
-
-        for item in defaultSlots where !existingIndexes.contains(item.index) {
-            context.insert(VillageSlotState(slotIndex: item.index, cost: item.cost, isPurchased: false))
-        }
-
         saveContext(context)
     }
 
     private func fetchOrCreateProgress(in context: ModelContext) -> PlayerProgress? {
-        let descriptor = FetchDescriptor<PlayerProgress>(predicate: #Predicate { $0.id == "main" })
+        let descriptor = FetchDescriptor<PlayerProgress>(
+            predicate: #Predicate { $0.id == "main" }
+        )
         if let existing = try? context.fetch(descriptor).first {
             return existing
         }
-
         let created = PlayerProgress()
         context.insert(created)
         saveContext(context)
@@ -160,14 +188,5 @@ final class GameDataStore {
         } catch {
             assertionFailure("Falha ao salvar SwiftData: \(error)")
         }
-    }
-
-    func purchasedSlotsCount() -> Int {
-        guard let context else { return 0 }
-
-        let descriptor = FetchDescriptor<VillageSlotState>()
-        let slots = (try? context.fetch(descriptor)) ?? []
-
-        return slots.filter { $0.isPurchased }.count
     }
 }
