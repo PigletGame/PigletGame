@@ -76,6 +76,10 @@ class GameScene: SKScene {
         setupPlayer()
         setupHUD()
         setupSystems()
+        
+        // Music transition
+        AudioService.shared.stop("menu.mp3")
+        AudioService.shared.play("inGameCombat.mp3", loop: true, volume: 0.07)
     }
 
     // MARK: – Setup
@@ -161,12 +165,14 @@ class GameScene: SKScene {
         guard !isGameOver else { return }
         isPausedManually = true
         self.isPaused = true
+        AudioService.shared.pause("inGameCombat.mp3")
         onPause?()
     }
 
     func resumeGame() {
         isPausedManually = false
         self.isPaused = false
+        AudioService.shared.resume("inGameCombat.mp3")
     }
 
     private func setupJoysticks() {
@@ -342,6 +348,11 @@ class GameScene: SKScene {
 
     private func triggerGameOver() {
         isGameOver = true
+        
+        // Music transition
+        AudioService.shared.stop("inGameCombat.mp3")
+        AudioService.shared.play("gameOver.mp3", loop: false)
+
         run(SKAction.sequence([
             SKAction.wait(forDuration: 0.6),
             SKAction.run { [weak self] in
