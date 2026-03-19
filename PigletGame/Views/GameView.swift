@@ -49,6 +49,7 @@ struct GameView: View {
     private func setupScene(size: CGSize) {
         let scene: SKScene
         if initialSceneType == OnboardingScene.self {
+            AudioService.shared.stop("menu.mp3")
             let onboarding = OnboardingScene(size: size)
             onboarding.dismiss = dismiss
             onboarding.onComplete = {

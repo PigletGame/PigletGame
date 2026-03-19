@@ -30,7 +30,7 @@ struct PauseView: View {
 
                 // Bottom Menu (Buttons)
                 Rectangle()
-                    .foregroundStyle(Color(hex: "610000"))
+                    .foregroundStyle(StyleGuide.Colors.wine)
                     .frame(height: 95)
                     .overlay(alignment: .top) {
                         HStack {
