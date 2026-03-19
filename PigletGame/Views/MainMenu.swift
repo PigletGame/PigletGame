@@ -110,7 +110,7 @@ struct MainMenu: View {
             GameView()
         }
         .navigationDestination(isPresented: $showVillage) {
-            VillageView()
+            VillageHubView()
         }
     }
 }

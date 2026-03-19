@@ -9,13 +9,17 @@ import SwiftUI
 import SpriteKit
 
 struct VillageView: View {
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         GeometryReader { geometry in
-            let scene: SKScene = {
+            let scene: VillageScene = {
                 let scene = VillageScene(size: geometry.size)
-                scene.dismiss = dismiss
+                
+                scene.onBack = {
+                    dismiss()
+                }
+
                 scene.scaleMode = .resizeFill
                 return scene
             }()
@@ -27,6 +31,7 @@ struct VillageView: View {
         .navigationBarBackButtonHidden()
     }
 }
+
 #Preview {
     VillageView()
 }

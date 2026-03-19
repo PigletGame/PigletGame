@@ -21,10 +21,17 @@ class GameOverScene: SKScene {
     required init?(coder aDecoder: NSCoder) { fatalError() }
 
     override func didMove(to view: SKView) {
+        GameDataStore.shared.recordRun(
+            collectedCoins: finalCoins,
+            kills: finalKills
+        )
+        
         backgroundColor = SKColor(red: 0.05, green: 0.03, blue: 0.10, alpha: 1)
         setupBackground()
         setupPanel()
     }
+
+    
 
     // MARK: – Background
     private func setupBackground() {
