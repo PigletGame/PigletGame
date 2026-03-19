@@ -71,6 +71,21 @@ final class AudioService {
         }
     }
 
+    /// Pausa um áudio específico mantendo a posição
+    func pause(_ name: String) {
+        queue.async {
+            self.players[name]?.pause()
+        }
+    }
+
+    /// Retoma um áudio pausado
+    func resume(_ name: String) {
+        queue.async {
+            if self.isMuted { return }
+            self.players[name]?.play()
+        }
+    }
+
     /// Ativa ou desativa o mute global
     func setMuted(_ muted: Bool) {
         queue.async {
