@@ -123,7 +123,7 @@ class CombatSystem {
             return
         }
 
-        HapticsService.shared.vibrate(with: .medium)
+        HapticsService.shared.vibrate(with: .heavy)
 
         health.setInvincible(true)
         player.flashDamage {

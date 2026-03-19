@@ -326,7 +326,7 @@ class GameScene: SKScene {
 
     private func triggerGameOver() {
         isGameOver = true
-        HapticsService.shared.vibrate(with: .heavy)
+        HapticsService.shared.vibrate(with: .gameOver)
         run(SKAction.sequence([
             SKAction.wait(forDuration: 0.6),
             SKAction.run { [weak self] in

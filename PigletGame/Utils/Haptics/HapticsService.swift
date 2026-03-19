@@ -8,7 +8,7 @@ enum HapticFeedbackStrength {
     case medium
     case heavy
     case soft
-    case rigid
+    case gameOver
 
     fileprivate var style: UIImpactFeedbackGenerator.FeedbackStyle {
         switch self {
@@ -16,7 +16,7 @@ enum HapticFeedbackStrength {
             return .light
         case .medium:
             return .medium
-        case .heavy, .rigid:
+        case .heavy, .gameOver:
             return .heavy
         }
     }
@@ -31,6 +31,7 @@ final class HapticsService {
     private let lightGenerator = UIImpactFeedbackGenerator(style: .light)
     private let mediumGenerator = UIImpactFeedbackGenerator(style: .medium)
     private let heavyGenerator = UIImpactFeedbackGenerator(style: .heavy)
+    private let notificationGenerator = UINotificationFeedbackGenerator()
 
     private init() {
         supportsHaptics = CHHapticEngine.capabilitiesForHardware().supportsHaptics
@@ -71,6 +72,10 @@ final class HapticsService {
 
     func heavy() {
         vibrate(with: .heavy)
+    }
+
+    func gameOver() {
+        vibrate(with: .gameOver)
     }
 
     func vibrate(with strength: HapticFeedbackStrength) {
@@ -173,6 +178,33 @@ final class HapticsService {
             )
 
             events = [firstPulse, rumble, secondPulse]
+        } else if strength == .gameOver {
+            events = [
+                CHHapticEvent(
+                    eventType: .hapticTransient,
+                    parameters: [
+                        CHHapticEventParameter(parameterID: .hapticIntensity, value: 1.0),
+                        CHHapticEventParameter(parameterID: .hapticSharpness, value: 1.0),
+                    ],
+                    relativeTime: 0.0
+                ),
+                CHHapticEvent(
+                    eventType: .hapticTransient,
+                    parameters: [
+                        CHHapticEventParameter(parameterID: .hapticIntensity, value: 1.0),
+                        CHHapticEventParameter(parameterID: .hapticSharpness, value: 1.0),
+                    ],
+                    relativeTime: 0.09
+                ),
+                CHHapticEvent(
+                    eventType: .hapticTransient,
+                    parameters: [
+                        CHHapticEventParameter(parameterID: .hapticIntensity, value: 1.0),
+                        CHHapticEventParameter(parameterID: .hapticSharpness, value: 1.0),
+                    ],
+                    relativeTime: 0.18
+                )
+            ]
         } else {
             let (intensity, sharpness) = impactParameters(for: strength)
             events = [
@@ -201,13 +233,19 @@ final class HapticsService {
     private func playUIKitFallback(strength: HapticFeedbackStrength) {
         let action = {
             if #available(iOS 10.0, *) {
+                if strength == .gameOver {
+                    self.notificationGenerator.prepare()
+                    self.notificationGenerator.notificationOccurred(.error)
+                    return
+                }
+
                 let generator: UIImpactFeedbackGenerator
                 switch strength {
                 case .light, .soft:
                     generator = self.lightGenerator
                 case .medium:
                     generator = self.mediumGenerator
-                case .heavy, .rigid:
+                case .heavy, .gameOver:
                     generator = self.heavyGenerator
                 }
                 generator.prepare()
@@ -236,6 +274,7 @@ final class HapticsService {
             self.lightGenerator.prepare()
             self.mediumGenerator.prepare()
             self.heavyGenerator.prepare()
+            self.notificationGenerator.prepare()
         }
 
         if Thread.isMainThread {
@@ -274,7 +313,7 @@ final class HapticsService {
             return (1.0, 1.0)
         case .soft:
             return (0.55, 0.35)
-        case .rigid:
+        case .gameOver:
             return (1.0, 1.0)
         }
     }
