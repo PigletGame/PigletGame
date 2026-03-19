@@ -10,21 +10,47 @@ import SpriteKit
 
 struct GameView: View {
     @Environment(\.dismiss) var dismiss
+    @State private var isPaused = false
+    @State private var gameScene: GameScene?
 
     var body: some View {
-        GeometryReader { geometry in
-            let scene: SKScene = {
-                let scene = GameScene(size: geometry.size)
-                scene.dismiss = dismiss
-                scene.scaleMode = .resizeFill
-                return scene
-            }()
+        ZStack {
+            GeometryReader { geometry in
+                if let scene = gameScene {
+                    SpriteView(scene: scene)
+                        .ignoresSafeArea()
+                } else {
+                    Color.black
+                        .onAppear {
+                            setupScene(size: geometry.size)
+                        }
+                }
+            }
+            .ignoresSafeArea()
 
-            SpriteView(scene: scene)
-                .ignoresSafeArea()
+            if isPaused {
+                PauseView(
+                    onResume: {
+                        isPaused = false
+                        gameScene?.resumeGame()
+                    },
+                    onExit: {
+                        dismiss()
+                    }
+                )
+            }
         }
-        .ignoresSafeArea()
         .navigationBarBackButtonHidden()
+    }
+
+    private func setupScene(size: CGSize) {
+        let scene = GameScene(size: size)
+        scene.dismiss = dismiss
+        scene.scaleMode = .resizeFill
+        scene.onPause = {
+            isPaused = true
+        }
+        self.gameScene = scene
     }
 }
 

@@ -10,15 +10,19 @@ class HUDNode: SKNode {
     private var killIcon:  SKSpriteNode!
     private var scoreIcon: SKSpriteNode!
     private var coinIcon:  SKSpriteNode!
+    private var pauseButton: SKSpriteNode!
 
     private let sceneSize: CGSize
     private let margin: CGFloat = 20
     private let lineSpacing: CGFloat = 28
+    
+    var onPausePressed: (() -> Void)?
 
     init(sceneSize: CGSize) {
         self.sceneSize = sceneSize
         super.init()
         zPosition = 90
+        isUserInteractionEnabled = true
         buildHUD()
     }
 
@@ -62,6 +66,33 @@ class HUDNode: SKNode {
         coinLabel = makeValueLabel(align: .right)
         coinLabel.position = CGPoint(x: coinIcon.position.x - 24, y: topY - lineSpacing)
         addChild(coinLabel)
+        
+        // --- Pause Button ---
+        pauseButton = SKSpriteNode(color: .white.withAlphaComponent(0.2), size: CGSize(width: 34, height: 34))
+        pauseButton.position = CGPoint(x: rightX - 5, y: topY - lineSpacing * 2.5)
+        pauseButton.name = "pauseButton"
+        pauseButton.zPosition = 100
+        
+        // Add a simple "||" label for the pause icon since we might not have a texture
+        let pauseLabel = SKLabelNode(text: "||")
+        pauseLabel.fontName = StyleGuide.Typography.heavy
+        pauseLabel.fontSize = 18
+        pauseLabel.verticalAlignmentMode = .center
+        pauseLabel.horizontalAlignmentMode = .center
+        pauseLabel.fontColor = .white
+        pauseButton.addChild(pauseLabel)
+        
+        addChild(pauseButton)
+    }
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        let location = touch.location(in: self)
+        let nodes = self.nodes(at: location)
+        
+        if nodes.contains(where: { $0.name == "pauseButton" || $0.parent?.name == "pauseButton" }) {
+            onPausePressed?()
+        }
     }
 
     private func makeValueLabel(align: SKLabelHorizontalAlignmentMode) -> SKLabelNode {

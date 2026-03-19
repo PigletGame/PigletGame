@@ -31,6 +31,7 @@ class GameScene: SKScene {
     private var lastUpdateTime: TimeInterval = 0
     private var scoreAccum:  TimeInterval = 0
     private var isGameOver   = false
+    private var isPausedManually = false
 
     // map config
     let tileWidth: CGFloat = 16
@@ -42,6 +43,7 @@ class GameScene: SKScene {
     }
 
     var dismiss: DismissAction?
+    var onPause: (() -> Void)?
 
     override init() {
         entityManager = .init(baseNode: worldNode)
@@ -148,8 +150,23 @@ class GameScene: SKScene {
 
     private func setupHUD() {
         hud = HUDNode(sceneSize: size)
+        hud.onPausePressed = { [weak self] in
+            self?.pauseGame()
+        }
         cameraNode.addChild(hud)
         refreshHUD()
+    }
+
+    func pauseGame() {
+        guard !isGameOver else { return }
+        isPausedManually = true
+        self.isPaused = true
+        onPause?()
+    }
+
+    func resumeGame() {
+        isPausedManually = false
+        self.isPaused = false
     }
 
     private func setupJoysticks() {
@@ -190,7 +207,7 @@ class GameScene: SKScene {
     // MARK: – Update Loop
 
     override func update(_ currentTime: TimeInterval) {
-        guard !isGameOver else { return }
+        guard !isGameOver && !isPausedManually else { return }
 
         if lastUpdateTime == 0 { lastUpdateTime = currentTime }
         let dt = currentTime - lastUpdateTime
