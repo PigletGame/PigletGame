@@ -30,7 +30,7 @@ struct VillageView: View {
             VStack(spacing: 0) {
                 HStack {
                     Spacer()
-                    PigletButton(size: .small, text: "", icon: "xmark") {
+                    PigletButton(size: .icon, text: "", icon: "xmark") {
                         dismiss()
                     }
                 }

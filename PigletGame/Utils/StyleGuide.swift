@@ -16,6 +16,7 @@ enum StyleGuide {
         static let red  = Color(hex: "B00202")
         static let disabledButton = Color(hex: "290000")
         static let wine = Color(hex: "610000")
+        static let darkRedGameOver = Color(hex: "930101")
         static let gray = Color(hex: "292929")
     }
 }

@@ -39,7 +39,7 @@ struct VillageHubView: View {
             VStack(spacing: 0) {
                 HStack {
                     Spacer()
-                    PigletButton(size: .small, text: "", icon: "xmark") {
+                    PigletButton(size: .icon, text: "", icon: "xmark") {
                         dismiss()
                     }
                 }
@@ -69,10 +69,10 @@ struct VillageHubView: View {
                         text: "Buy House",
                         icon: "house.fill",
                         color: canAfford ? .yellow : .red,
-                        price: nextCost
-                    ) {
-                        buyNextHouse()
-                    }
+                        price: nextCost) {
+                            buyNextHouse()
+                        }
+                    
                     .disabled(!canAfford)
                     .opacity(canAfford ? 1 : 0.5)
 

@@ -11,6 +11,8 @@ import SpriteKit
 struct GameView: View {
     @Environment(\.dismiss) var dismiss
     @State private var isPaused = false
+    @State private var isGameOver = false
+    @State private var finalStats: (coins: Int, kills: Int, time: Int)?
     @State private var currentScene: SKScene?
     
     var initialSceneType: SKScene.Type = GameScene.self
@@ -42,6 +44,15 @@ struct GameView: View {
                     }
                 )
             }
+            
+            if isGameOver, let stats = finalStats {
+                GameOverView(
+                    coins: stats.coins,
+                    kills: stats.kills,
+                    time: stats.time,
+                    dismiss: dismiss
+                )
+            }
         }
         .navigationBarBackButtonHidden()
     }
@@ -69,6 +80,10 @@ struct GameView: View {
         game.dismiss = dismiss
         game.onPause = {
             isPaused = true
+        }
+        game.onComplete = { coins, kills, time in
+            self.finalStats = (coins, kills, time)
+            self.isGameOver = true
         }
         return game
     }

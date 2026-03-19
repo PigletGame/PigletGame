@@ -43,7 +43,7 @@ struct MainMenu: View {
         VStack(alignment: .trailing) {
             HStack(spacing: 16) {
                 PigletButton(
-                    size: .small,
+                    size: .icon,
                     text: "",
                     icon: "speaker\(AudioService.shared.isAudioMuted ? ".slash" : "").fill",
                     color: AudioService.shared.isAudioMuted ? .disabledButton : .red
@@ -52,7 +52,7 @@ struct MainMenu: View {
                 }
 
                 PigletButton(
-                    size: .small,
+                    size: .icon,
                     text: "",
                     icon: isHapticsEnabled ? "hand.tap.fill" : "hand.raised.slash.fill",
                     color: isHapticsEnabled ? .red : .disabledButton
@@ -81,11 +81,11 @@ struct MainMenu: View {
                     }
 
                     HStack(spacing: 16) {
-                        PigletButton(size: .medium, text: "Village", icon: "house.fill") {
+                        PigletButton(size: .small, text: "Village", icon: "house.fill") {
                             showVillage = true
                         }
 
-                        PigletButton(size: .medium, text: "Ranking", icon: "trophy.fill") {
+                        PigletButton(size: .small, text: "Ranking", icon: "trophy.fill") {
                             GameCenterManager.shared.showLeaderboard()
                         }
                     }
