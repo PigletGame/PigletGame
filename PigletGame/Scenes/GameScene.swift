@@ -277,6 +277,7 @@ class GameScene: SKScene {
                     
                     let result = enemy.health.takeDamage()
                     if result == .hit {
+                        HapticsService.shared.vibrate(with: .light)
                         if enemy.health.isDead {
                             handleEnemyKilled(enemy)
                         } else {
@@ -350,8 +351,9 @@ class GameScene: SKScene {
     private func triggerGameOver() {
         isGameOver = true
         
-        // Music transition
+        // Music transition and endind haptics
         AudioService.shared.stop("inGameCombat.mp3")
+        HapticsService.shared.vibrate(with: .gameOver)
         AudioService.shared.play("gameOver.mp3", loop: false)
 
         run(SKAction.sequence([

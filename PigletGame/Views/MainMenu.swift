@@ -11,6 +11,7 @@ struct MainMenu: View {
     @AppStorage(OnboardingScene.seenKey) var hasSeenOnboarding: Bool = false
     @State private var showOnboarding = false
     @State private var showMenu = false
+    @State private var isHapticsEnabled = HapticsService.shared.isEnabled
 
     @State var showGame: Bool = false
     @State var showVillage: Bool = false
@@ -32,6 +33,7 @@ struct MainMenu: View {
                 if !hasSeenOnboarding {
                     showOnboarding = true
                 }
+                isHapticsEnabled = HapticsService.shared.isEnabled
                 showMenu = true
                 AudioService.shared.play("menu.mp3", loop: true, volume: 0.1)
             }
@@ -44,15 +46,22 @@ struct MainMenu: View {
                     size: .icon,
                     text: "",
                     icon: "speaker\(AudioService.shared.isAudioMuted ? ".slash" : "").fill",
-                    color: AudioService.shared.isAudioMuted ? .yellow : .red
+                    color: AudioService.shared.isAudioMuted ? .disabledButton : .red
                 ) {
                     AudioService.shared.toggleMute()
                 }
 
-                PigletButton(size: .icon, text: "", icon: "hand.tap.fill") {
-                    // Reset for testing
-                    hasSeenOnboarding = false
-                    showOnboarding = true
+                PigletButton(
+                    size: .small,
+                    text: "",
+                    icon: isHapticsEnabled ? "hand.tap.fill" : "hand.raised.slash.fill",
+                    color: isHapticsEnabled ? .red : .disabledButton
+                ) {
+                    isHapticsEnabled.toggle()
+                    HapticsService.shared.setEnabled(isHapticsEnabled)
+                    if isHapticsEnabled {
+                        HapticsService.shared.vibrate(with: .light)
+                    }
                 }
             }
 
@@ -111,7 +120,7 @@ struct MainMenu: View {
             GameView()
         }
         .navigationDestination(isPresented: $showVillage) {
-            VillageView()
+            VillageHubView()
         }
     }
 }
