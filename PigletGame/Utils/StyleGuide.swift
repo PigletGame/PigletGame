@@ -3,9 +3,9 @@ import SwiftUI
 
 enum StyleGuide {
     enum Typography {
-        static let bold   = "AvenirNext-Bold"
-        static let heavy  = "AvenirNext-Heavy"
-        static let medium = "AvenirNext-Medium"
+        static let bold   = "Geist-Bold"
+        static let heavy  = "Geist-Heavy"
+        static let medium = "Geist-Medium"
     }
 
     enum Colors {
@@ -13,5 +13,7 @@ enum StyleGuide {
         static let yellow = Color(hex: "FFD700")
         static let red  = Color(hex: "B00202")
         static let disabledButton = Color(hex: "290000")
+        static let wine = Color(hex: "610000")
+        static let gray = Color(hex: "292929")
     }
 }

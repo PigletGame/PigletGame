@@ -74,7 +74,7 @@ class CombatSystem {
             spawnDeathFX(at: pos)
         }
         scene?.entityManager.removeEntity(entity)
-        AudioService.shared.play("tiger.m4a", volume: 0.08)
+        AudioService.shared.play("tiger.m4a", volume: 0.05)
 
         onScoreIncrease(25)
     }

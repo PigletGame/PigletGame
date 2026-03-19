@@ -26,7 +26,7 @@ struct MainMenu: View {
             .navigationDestination(
                 isPresented: $showOnboarding,
                 destination: {
-                    OnboardingView()
+                    GameView(initialSceneType: OnboardingScene.self)
                 }
             )
             .onAppear {
@@ -35,6 +35,7 @@ struct MainMenu: View {
                 }
                 isHapticsEnabled = HapticsService.shared.isEnabled
                 showMenu = true
+                AudioService.shared.play("menu.mp3", loop: true, volume: 0.1)
             }
     }
 

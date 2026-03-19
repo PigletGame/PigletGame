@@ -3,6 +3,7 @@ import SwiftUI
 
 class OnboardingScene: SKScene {
     var dismiss: DismissAction?
+    var onComplete: (() -> Void)?
 
     static let seenKey = "hasSeenOnboarding"
     let linesPerPage = 4
@@ -118,7 +119,6 @@ class OnboardingScene: SKScene {
         hintLabel?.isHidden = isLastPage
 
         if isLastPage {
-            UserDefaults.standard.set(true, forKey: OnboardingScene.seenKey)
             showPlayButtonIfNeeded()
         } else {
             playButton?.removeFromParent()
@@ -224,12 +224,8 @@ class OnboardingScene: SKScene {
         let location = touch.location(in: self)
 
         for node in nodes(at: location) where node.name == "playButton" {
-            let scene = GameScene()
-            scene.dismiss = self.dismiss
             AudioService.shared.play("bumbo.mp3")
-            scene.scaleMode = .resizeFill
-            view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.5))
-            AudioService.shared.play("bumbo.mp3")
+            onComplete?()
             return
         }
 

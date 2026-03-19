@@ -157,6 +157,8 @@ class GameOverScene: SKScene {
         for node in nodes(at: loc) {
             if node.name == "playAgain" {
 
+                AudioService.shared.stop("gameOver.mp3")
+
                 AdManager.shared.showAd {
                     let scene = GameScene()
                     scene.dismiss = self.dismiss
@@ -167,6 +169,7 @@ class GameOverScene: SKScene {
                 return
             }
             if node.name == "menu" {
+                AudioService.shared.stop("gameOver.mp3")
                 self.dismiss?()
                 return
             }
