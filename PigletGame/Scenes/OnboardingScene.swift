@@ -1,14 +1,11 @@
 import SpriteKit
-import UIKit
+import SwiftUI
 
 class OnboardingScene: SKScene {
+    var dismiss: DismissAction?
 
     static let seenKey = "hasSeenOnboarding"
     let linesPerPage = 4
-
-    static var hasSeenOnboarding: Bool {
-        UserDefaults.standard.bool(forKey: OnboardingScene.seenKey)
-    }
 
     private let storyLines: [String] = [
         "The pig village was calm. \nCheerful and peaceful, as it had always been.",
@@ -193,6 +190,7 @@ class OnboardingScene: SKScene {
 
         for node in nodes(at: location) where node.name == "playButton" {
             let scene = GameScene()
+            scene.dismiss = self.dismiss
             AudioService.shared.play("bumbo.mp3")
             scene.scaleMode = .resizeFill
             view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.5))

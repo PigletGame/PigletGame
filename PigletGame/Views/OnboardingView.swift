@@ -1,20 +1,13 @@
-//
-//  ContentView.swift
-//  PigletGame
-//
-//  Created by Adriel de Souza on 13/03/26.
-//
-
 import SwiftUI
 import SpriteKit
 
-struct GameView: View {
+struct OnboardingView: View {
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
         GeometryReader { geometry in
-            let scene: SKScene = {
-                let scene = GameScene(size: geometry.size)
+            let scene: OnboardingScene = {
+                let scene = OnboardingScene(size: geometry.size)
                 scene.dismiss = dismiss
                 scene.scaleMode = .resizeFill
                 return scene
@@ -26,8 +19,4 @@ struct GameView: View {
         .ignoresSafeArea()
         .navigationBarBackButtonHidden()
     }
-}
-
-#Preview {
-    GameView()
 }

@@ -8,16 +8,50 @@
 import SwiftUI
 
 struct MainMenu: View {
+    @AppStorage(OnboardingScene.seenKey) var hasSeenOnboarding: Bool = false
+    @State private var showOnboarding = false
+    @State private var showMenu = false
+
     @State var showGame: Bool = false
     @State var showVillage: Bool = false
 
     var body: some View {
+        menuContent
+            .overlay(
+                Color.black.ignoresSafeArea()
+                    .allowsHitTesting(false)
+                    .opacity(showMenu ? 0 : 1)
+            )
+            .navigationDestination(
+                isPresented: $showOnboarding,
+                destination: {
+                    OnboardingView()
+                }
+            )
+            .onAppear {
+                if !hasSeenOnboarding {
+                    showOnboarding = true
+                }
+                showMenu = true
+            }
+    }
+
+    private var menuContent: some View {
         VStack(alignment: .trailing) {
             HStack(spacing: 16) {
-                PigletButton(size: .small, text: "", icon: "speaker.fill") {
+                PigletButton(
+                    size: .small,
+                    text: "",
+                    icon: "speaker\(AudioService.shared.isAudioMuted ? ".slash" : "").fill",
+                    color: AudioService.shared.isAudioMuted ? .yellow : .red
+                ) {
+                    AudioService.shared.toggleMute()
                 }
 
                 PigletButton(size: .small, text: "", icon: "hand.tap.fill") {
+                    // Reset for testing
+                    hasSeenOnboarding = false
+                    showOnboarding = true
                 }
             }
 
@@ -58,7 +92,6 @@ struct MainMenu: View {
                 .resizable()
                 .ignoresSafeArea()
                 .blendMode(.multiply)
-
         )
         .background(
             Image("Menu/Texture")
@@ -70,7 +103,7 @@ struct MainMenu: View {
         .background(
             Gradient(colors: [
                 Color(hex: "A70202"),
-                Color(hex: "C50202")
+                Color(hex: "C50202"),
             ])
         )
         .navigationDestination(isPresented: $showGame) {
