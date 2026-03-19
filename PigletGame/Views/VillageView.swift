@@ -6,29 +6,80 @@
 //
 
 import SwiftUI
-import SpriteKit
 
 struct VillageView: View {
     @Environment(\.dismiss) private var dismiss
 
+    @State private var purchasedCount: Int = GameDataStore.shared.purchasedSlotsCount()
+
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 6)
+
     var body: some View {
-        GeometryReader { geometry in
-            let scene: VillageScene = {
-                let scene = VillageScene(size: geometry.size)
-                
-                scene.onBack = {
-                    dismiss()
-                }
-
-                scene.scaleMode = .resizeFill
-                return scene
-            }()
-
-            SpriteView(scene: scene)
+        ZStack {
+            Image("Menu/Texture")
+                .resizable()
+                .opacity(0.7)
+                .blendMode(.multiply)
                 .ignoresSafeArea()
+
+            Image("Menu/Lines")
+                .resizable()
+                .blendMode(.multiply)
+                .ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                HStack {
+                    Spacer()
+                    PigletButton(size: .small, text: "", icon: "xmark") {
+                        dismiss()
+                    }
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 32)
+
+                VStack(spacing: 0) {
+                    Text("THE")
+                        .font(.custom("AvenirNext-Heavy", size: 14))
+                        .foregroundColor(.white)
+                    Text("HOUSES")
+                        .font(.custom("AvenirNext-Heavy", size: 34))
+                        .foregroundColor(.black)
+                        .padding(.top, -10)
+                }
+                .padding(.top, -50)
+
+                ScrollView(.vertical, showsIndicators: false) {
+                    LazyVGrid(columns: columns, spacing: 12) {
+                        ForEach(0..<purchasedCount, id: \.self) { _ in
+                            HouseCell()
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 24)
+                    .padding(.bottom, 40)
+                }
+            }
         }
-        .ignoresSafeArea()
-        .navigationBarBackButtonHidden()
+        .background(
+            Gradient(colors: [
+                Color(hex: "A70202"),
+                Color(hex: "C50202"),
+            ])
+        )
+        .navigationBarHidden(true)
+        .task { purchasedCount = GameDataStore.shared.purchasedSlotsCount() }
+    }
+}
+
+private struct HouseCell: View {
+    var body: some View {
+        RoundedRectangle(cornerRadius: 12)
+            .fill(Color(hex: "6B0101"))
+            .aspectRatio(1, contentMode: .fit)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.black.opacity(0.4), lineWidth: 1.5)
+            )
     }
 }
 

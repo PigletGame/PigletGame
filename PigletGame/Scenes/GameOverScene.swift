@@ -31,8 +31,6 @@ class GameOverScene: SKScene {
         setupPanel()
     }
 
-    
-
     // MARK: – Background
     private func setupBackground() {
         for _ in 0..<40 {

@@ -9,130 +9,93 @@ import SwiftUI
 
 struct VillageHubView: View {
 
+    @Environment(\.dismiss) var dismiss
+
     @State private var progress = GameDataStore.shared.progressSnapshot()
     @State private var purchasedCount: Int = GameDataStore.shared.purchasedSlotsCount()
+    @State private var showVillage = false
 
-    @State var showVillage = false
-    @State var showPurchaseModal = false
-
-    @State private var alertMessage: String? = nil
-
-//    @State var nextCost: Int = 0
-
-    // ADICIONA propriedade computada:
     private var nextCost: Int {
         GameDataStore.shared.slotCost(for: purchasedCount)
     }
 
-    private var purchaseModal: some View {
-        VStack(spacing: 24) {
-
-            Text("🏡 Comprar Casa")
-                .font(.title)
-                .bold()
-
-            Text("Custo: \(nextCost) moedas")
-                .font(.title2)
-
-            Button("Confirmar Compra") {
-                confirmPurchase()
-            }
-            .padding()
-            .frame(width: 220)
-            .background(Color.green)
-            .foregroundColor(.white)
-            .cornerRadius(12)
-
-            Button("Cancelar") {
-                showPurchaseModal = false
-            }
-            .foregroundColor(.red)
-
-            if let msg = alertMessage {
-                Text(msg)
-                    .font(.footnote)
-                    .foregroundColor(.red)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-            }
-
-        }
-        .padding()
-    }
-
-    private func confirmPurchase() {
-        let result = GameDataStore.shared.purchaseSlot(index: purchasedCount)
-        switch result {
-        case .purchased:
-            reload()
-            showPurchaseModal = false
-        case .insufficientFunds(let required, let current):
-            alertMessage = "Faltam \(required - current) 🪙 para comprar esta casa."
-        case .alreadyOwned:
-            alertMessage = "Esta casa já foi comprada."
-        case .unavailable:
-            alertMessage = "Não foi possível comprar agora."
-        }
+    private var canAfford: Bool {
+        progress.totalCoins >= nextCost
     }
 
     var body: some View {
-        VStack(spacing: 32) {
+        ZStack {
+            Image("Menu/Texture")
+                .resizable()
+                .opacity(0.7)
+                .blendMode(.multiply)
+                .ignoresSafeArea()
 
-            Spacer()
+            Image("Menu/Lines")
+                .resizable()
+                .blendMode(.multiply)
+                .ignoresSafeArea()
 
-            Text("🏡 Sua Vila")
-                .font(.largeTitle)
-                .bold()
+            VStack(spacing: 0) {
+                HStack {
+                    Spacer()
+                    PigletButton(size: .small, text: "", icon: "xmark") {
+                        dismiss()
+                    }
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 32)
 
-            VStack(spacing: 16) {
+                VStack(spacing: 0) {
+                    Text("THE")
+                        .font(.custom("AvenirNext-Heavy", size: 14))
+                        .foregroundColor(.white)
 
-                Text("🪙 Moedas: \(progress.totalCoins)")
-                    .font(.title2)
+                    Text("VILLAGE")
+                        .font(.custom("AvenirNext-Heavy", size: 34))
+                        .foregroundColor(.black)
+                        .padding(.top, -10)
+                }
+                .padding(.top, -50)
 
-                Text("🏡 Casas: \(purchasedCount)")
-                    .font(.title2)
+                VillageStatsBar(coins: progress.totalCoins, houses: purchasedCount)
+                    .padding(.horizontal, 32)
 
+                Spacer()
+
+                VStack(spacing: 16) {
+                    PigletButton(
+                        size: .largeTwoLine,
+                        text: "Buy House",
+                        icon: "house.fill",
+                        color: canAfford ? .yellow : .red,
+                        price: nextCost
+                    ) {
+                        buyNextHouse()
+                    }
+                    .disabled(!canAfford)
+                    .opacity(canAfford ? 1 : 0.5)
+
+                    PigletButton(size: .smallWide, text: "See the Village", icon: "house.fill") {
+                        showVillage = true
+                    }
+                }
+                .padding(.horizontal, 32)
+                .padding(.bottom, 27)
             }
-
-            Button {
-//                nextCost = GameDataStore.shared.slotCost(for: purchasedCount)
-                showPurchaseModal = true
-            } label: {
-                Text("Comprar Casa")
-                    .font(.headline)
-                    .padding()
-                    .frame(width: 220)
-                    .background(Color.green)
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
-            }
-
-            Button(action: {
-                showVillage = true
-            }) {
-                Text("Ver Vila")
-                    .font(.headline)
-                    .padding()
-                    .frame(width: 220)
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
-            }
-
-            Spacer()
         }
-        .task {
-            reload()
-        }
+        .background(
+            Gradient(colors: [
+                Color(hex: "A70202"),
+                Color(hex: "C50202"),
+            ])
+        )
+        .navigationBarHidden(true)
+        .task { reload() }
         .navigationDestination(isPresented: $showVillage) {
             VillageView()
         }
-        .sheet(isPresented: $showPurchaseModal) {
-            purchaseModal
-        }
     }
-
-    // MARK: - Logic
 
     private func reload() {
         progress = GameDataStore.shared.progressSnapshot()
@@ -140,23 +103,16 @@ struct VillageHubView: View {
     }
 
     private func buyNextHouse() {
-        let nextIndex = purchasedCount
-
-        let result = GameDataStore.shared.purchaseSlot(index: nextIndex)
-
-        switch result {
-        case .purchased:
+        let result = GameDataStore.shared.purchaseSlot(index: purchasedCount)
+        if case .purchased = result {
             reload()
-
-        case .insufficientFunds:
-            print("Sem moedas")
-
-        case .alreadyOwned:
-            print("Já tem")
-
-        case .unavailable:
-            print("Indisponível")
         }
     }
 }
 
+#Preview {
+    VillageHubView()
+}
+#Preview {
+    VillageHubView()
+}
