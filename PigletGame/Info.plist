@@ -4,5 +4,9 @@
 <dict>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-3283949901031820~1219825975</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Geist-VariableFont_wght.ttf</string>
+	</array>
 </dict>
 </plist>

@@ -25,19 +25,40 @@ class VisualComponent: GKComponent {
     }
 
     func flash(color: SKColor, duration: TimeInterval = 0.1, completion: (() -> Void)? = nil) {
-        let flashAction = SKAction.sequence([
-            SKAction.colorize(with: color, colorBlendFactor: 1.0, duration: duration * 0.4),
-            SKAction.colorize(with: .clear, colorBlendFactor: 0, duration: duration * 0.6)
-        ])
-        
         // Apply to the node itself if it's a sprite, or its first sprite child
         let target = (node as? SKSpriteNode) ?? node.children.compactMap({ $0 as? SKSpriteNode }).first
         
-        if let sprite = target {
-            sprite.run(flashAction) {
-                completion?()
+        guard let sprite = target else {
+            completion?()
+            return
+        }
+
+        let fadeInTime = duration * 0.3
+        let fadeOutTime = duration * 0.7
+
+        let flashIn = SKAction.customAction(withDuration: fadeInTime) { node, elapsedTime in
+            if let sprite = node as? SKSpriteNode {
+                let percent = elapsedTime / CGFloat(fadeInTime)
+                sprite.color = color
+                sprite.colorBlendFactor = percent
             }
-        } else {
+        }
+
+        let flashOut = SKAction.customAction(withDuration: fadeOutTime) { node, elapsedTime in
+            if let sprite = node as? SKSpriteNode {
+                let percent = 1.0 - (elapsedTime / CGFloat(fadeOutTime))
+                sprite.color = color
+                sprite.colorBlendFactor = percent
+            }
+        }
+
+        let reset = SKAction.run {
+            if let sprite = target as? SKSpriteNode {
+                sprite.colorBlendFactor = 0
+            }
+        }
+
+        sprite.run(SKAction.sequence([flashIn, flashOut, reset])) {
             completion?()
         }
     }

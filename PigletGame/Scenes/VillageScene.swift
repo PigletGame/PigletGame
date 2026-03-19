@@ -1,4 +1,5 @@
 import SpriteKit
+import SwiftUI
 
 class VillageScene: SKScene {
     private var coinsLabel: SKLabelNode!
@@ -6,9 +7,11 @@ class VillageScene: SKScene {
     private var feedbackLabel: SKLabelNode?
     private var purchaseOverlay: SKNode?
     private var selectedSlotIndex: Int?
+    var dismiss: DismissAction?
 
     private var slots: [GameDataStore.SlotSnapshot] = []
     private var progress = GameDataStore.ProgressSnapshot(totalCoins: 0, totalKills: 0)
+
 
     override func didMove(to view: SKView) {
         backgroundColor = SKColor(red: 0.12, green: 0.22, blue: 0.10, alpha: 1)
@@ -290,10 +293,7 @@ class VillageScene: SKScene {
             guard let name = node.name else { continue }
 
             if name == "menuBtn" {
-                let scene = MenuScene()
-                scene.scaleMode = .resizeFill
-                view?.presentScene(scene, transition: SKTransition.fade(withDuration: 0.4))
-                return
+                self.dismiss?()
             }
 
             if name == "buySlot" {

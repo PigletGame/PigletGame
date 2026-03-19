@@ -62,14 +62,16 @@ class CoinSystem {
 
     // MARK: – Drop
 
-    func dropLoot(at pos: CGPoint) {
+    func dropLoot(at pos: CGPoint, multiplier: Int) {
         guard let scene else { return }
         let drops = LootComponent().roll()
 
         for drop in drops {
             switch drop {
             case .coin:
-                scene.entityManager.addEntity(CoinEntity(at: pos))
+                for _ in 1...multiplier {
+                    scene.entityManager.addEntity(CoinEntity(at: pos))
+                }
             case .extraCoin:
                 let offset = CGPoint(x: CGFloat.random(in: -15...15),
                                      y: CGFloat.random(in: -15...15))

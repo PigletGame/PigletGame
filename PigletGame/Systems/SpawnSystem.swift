@@ -41,10 +41,10 @@ class SpawnSystem {
 
     private func randomEdgePoint(in size: CGSize) -> CGPoint {
         switch Int.random(in: 0...3) {
-        case 0:  return CGPoint(x: CGFloat.random(in: 0...size.width), y: size.height + 22)
-        case 1:  return CGPoint(x: CGFloat.random(in: 0...size.width), y: -22)
-        case 2:  return CGPoint(x: -22, y: CGFloat.random(in: 0...size.height))
-        default: return CGPoint(x: size.width + 22, y: CGFloat.random(in: 0...size.height))
+        case 0:  return CGPoint(x: CGFloat.random(in: 0...size.width), y: size.height)
+        case 1:  return CGPoint(x: CGFloat.random(in: 0...size.width), y: 0)
+        case 2:  return CGPoint(x: 0, y: CGFloat.random(in: 0...size.height))
+        default: return CGPoint(x: size.width, y: CGFloat.random(in: 0...size.height))
         }
     }
 }

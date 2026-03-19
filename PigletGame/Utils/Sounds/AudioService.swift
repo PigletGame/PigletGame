@@ -6,6 +6,7 @@
 import Foundation
 import AVFoundation
 
+@Observable
 final class AudioService {
     static let shared = AudioService()
 
@@ -13,8 +14,20 @@ final class AudioService {
     private var isMuted: Bool = false
     private let queue = DispatchQueue(label: "AudioServiceQueue")
 
-    private init() {}
+    private init() {
+        configureAudioSession()
+    }
 
+    private func configureAudioSession() {
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.playback, mode: .default)
+            try session.setActive(true)
+        } catch {
+            print("[AudioService] Failed to configure audio session: \(error)")
+        }
+    }
+    
     /// Toca um áudio do bundle (nome do arquivo com extensão, ex: "efeito.wav")
     /// Se já estiver tocando, reinicia.
     /// - Parameters:
@@ -77,7 +90,7 @@ final class AudioService {
     }
 
     /// Retorna o estado atual do mute
-    func isAudioMuted() -> Bool {
+    var isAudioMuted: Bool {
         return isMuted
     }
 }

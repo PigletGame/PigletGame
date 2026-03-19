@@ -98,9 +98,7 @@ class Pause: SKNode {
                 scene?.isPaused = false
                 scene?.physicsWorld.speed = 1
                 if let skView = self.scene?.view, let currentScene = self.scene {
-                    let menuScene = MenuScene(size: currentScene.size)
-                    menuScene.scaleMode = currentScene.scaleMode
-                    skView.presentScene(menuScene, transition: SKTransition.fade(withDuration: 0.35))
+                    fatalError()
                 }
             }
         }

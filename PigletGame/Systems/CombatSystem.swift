@@ -55,8 +55,8 @@ class CombatSystem {
             }
             
             if dist <= stopDistance + 5 {
-                if elapsedTime - enemy.ai.lastHitTime >= config.meleeCooldown {
-                    enemy.ai.lastHitTime = elapsedTime
+                if elapsedTime - player.lastHitTime >= config.meleeCooldown {
+                    player.lastHitTime = elapsedTime // Update immediately so other enemies wait
                     onMeleeDamage()
                 }
             }

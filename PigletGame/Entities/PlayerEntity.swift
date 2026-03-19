@@ -8,6 +8,7 @@ class PlayerEntity: GKEntity {
 
     let health = HealthComponent()
     lazy var shield = ShieldComponent(ownerRadius: PlayerEntity.radius)
+    var lastHitTime: TimeInterval = 0
 
     private var isPlayingStepsAudio = false
 
@@ -45,7 +46,7 @@ class PlayerEntity: GKEntity {
     required init?(coder aDecoder: NSCoder) { fatalError() }
 
     func flashDamage(onComplete: @escaping () -> Void) {
-        if let visual = self.component(ofType: VisualComponent.self) {
+        if let visual = VisualComponent.from(self) {
             let sequence = SKAction.repeat(SKAction.run { [weak visual] in
                 visual?.flash(color: .red, duration: 0.15)
             }, count: 6)
