@@ -44,6 +44,7 @@ class GameScene: SKScene {
 
     var dismiss: DismissAction?
     var onPause: (() -> Void)?
+    var onComplete: ((Int, Int, Int) -> Void)?
 
     override init() {
         entityManager = .init(baseNode: worldNode)
@@ -357,18 +358,7 @@ class GameScene: SKScene {
             SKAction.wait(forDuration: 0.6),
             SKAction.run { [weak self] in
                 guard let self else {return}
-
-                let scene = GameOverScene(
-                    score: self.score,
-                    coins: self.coinCount,
-                    kills: self.killCount,
-                    time: Int(self.elapsedTime)
-                )
-                scene.dismiss = self.dismiss
-
-                scene.scaleMode = .resizeFill
-                self.view?.presentScene(scene,
-                                        transition: SKTransition.fade(withDuration: 0.55))
+                self.onComplete?(self.coinCount, self.killCount, Int(self.elapsedTime))
             }
         ]))
     }

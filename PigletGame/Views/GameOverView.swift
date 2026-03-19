@@ -12,9 +12,16 @@ struct GameOverView: View {
     private let finalCoins: Int
     private let finalKills: Int
     private let finalTime: Int
+    private let dismiss: DismissAction?
 
     @State var showGame: Bool = false
     @State var returnMenu: Bool = false
+    
+    // Animation states
+    @State private var showBars = false
+    @State private var showBackground = false
+    @State private var showTitle = false
+    @State private var showContent = false
 
     init(
         coins: Int,
@@ -25,6 +32,7 @@ struct GameOverView: View {
         self.finalCoins = coins
         self.finalKills = kills
         self.finalTime = time
+        self.dismiss = dismiss
     }
     
     private func formatTime(_ seconds: Int) -> String {
@@ -34,11 +42,59 @@ struct GameOverView: View {
     }
 
     var body: some View {
-        menuContent
-            .overlay(
-                Color.black.ignoresSafeArea()
-                    .allowsHitTesting(false)
+        ZStack {
+            backgroundLayer
+            
+            barsLayer
+            
+            menuContent
+        }
+        .onAppear {
+            animateEntrance()
+        }
+    }
+    
+    private var backgroundLayer: some View {
+        ZStack {
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(hex: "A70202"),
+                    Color(hex: "C50202"),
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
             )
+
+            StyleGuide.Colors.darkRed
+
+            Image("Menu/Texture")
+                .resizable()
+                .opacity(0.7)
+                .blendMode(.multiply)
+
+            Image("Menu/Lines")
+                .resizable()
+                .blendMode(.multiply)
+        }
+        .opacity(showBackground ? 1.0 : 0.0)
+        .ignoresSafeArea()
+    }
+    
+    private var barsLayer: some View {
+        VStack {
+            Rectangle()
+                .fill(StyleGuide.Colors.wine)
+                .frame(maxWidth: .infinity, maxHeight: 80)
+                .offset(y: showBars ? 0 : -200)
+            
+            Spacer()
+            
+            Rectangle()
+                .fill(StyleGuide.Colors.wine)
+                .frame(maxWidth: .infinity, maxHeight: 80)
+                .offset(y: showBars ? 0 : 200)
+        }
+        .ignoresSafeArea()
     }
     
     private var menuContent: some View {
@@ -49,6 +105,8 @@ struct GameOverView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 295)
+                    .offset(x: showTitle ? 0 : -500)
+                    .opacity(showTitle ? 1 : 0)
 
                 Spacer()
 
@@ -57,7 +115,7 @@ struct GameOverView: View {
                     HStack(spacing: 8) {
                         CardInfo(
                             icon: "GameOver/death",
-                            value: ("x\(finalKills)"),
+                            value: ("x\(finalKills)")
                         )
                         CardInfo(
                             icon: "GameOver/coin",
@@ -77,7 +135,11 @@ struct GameOverView: View {
                             text: "Return to Menu",
                             icon: "arrowshape.turn.up.backward.fill"
                         ) {
-                            returnMenu = true
+                            if let dismiss = dismiss {
+                                dismiss()
+                            } else {
+                                returnMenu = true
+                            }
                         }
 
                         PigletButton(
@@ -91,47 +153,39 @@ struct GameOverView: View {
                     }
                 }
                 .padding(.vertical, 120)
+                .offset(x: showContent ? 0 : 500)
+                .opacity(showContent ? 1 : 0)
 
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(
-            ZStack {
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color(hex: "A70202"),
-                        Color(hex: "C50202"),
-                    ]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-
-                StyleGuide.Colors.darkRedGameOver
-                    .blendMode(.multiply)
-
-                Image("Menu/Texture")
-                    .resizable()
-                    .opacity(0.7)
-                    .blendMode(.multiply)
-
-                Rectangle()
-                    .fill(StyleGuide.Colors.darkRed)
-                    .frame(maxWidth: .infinity, maxHeight: 240)
-                    .ignoresSafeArea()
-
-                Image("Menu/Lines")
-                    .resizable()
-                    .blendMode(.multiply)
-
-            }
-            .ignoresSafeArea()
-        )
-
         .navigationDestination(isPresented: $showGame) {
             GameView()
         }
         .navigationDestination(isPresented: $returnMenu) {
             MainMenu()
+        }
+    }
+    
+    private func animateEntrance() {
+        // 1. Red bars move in
+        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+            showBars = true
+        }
+        
+        // 2. Background fades in
+        withAnimation(.easeIn(duration: 0.4).delay(0.2)) {
+            showBackground = true
+        }
+        
+        // 3. 'You Died' moves from left
+        withAnimation(.spring(response: 0.7, dampingFraction: 0.75).delay(0.5)) {
+            showTitle = true
+        }
+        
+        // 4. Stats and buttons move from right
+        withAnimation(.spring(response: 0.7, dampingFraction: 0.75).delay(0.7)) {
+            showContent = true
         }
     }
 }

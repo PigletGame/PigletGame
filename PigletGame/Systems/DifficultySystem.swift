@@ -56,16 +56,15 @@ class DifficultySystem {
         guard let scene = self.scene else { return }
         
         let alert = SKLabelNode(fontNamed: StyleGuide.Typography.heavy)
-        alert.text      = "⚡ Dificuldade \(config.level)!"
+        alert.text      = "Difficulty \(config.level)"
         alert.fontSize  = 22
         alert.fontColor = SKColor(red: 1, green: 0.3, blue: 0.1, alpha: 1)
-        alert.position  = CGPoint(x: 0, y: sceneSize.height / 2 - 80)
+        alert.position  = CGPoint(x: 0, y: sceneSize.height / 2 - 30)
         alert.zPosition = 100
         scene.addChild(alert)
 
-        // Show secondary info
         let sub = SKLabelNode(fontNamed: StyleGuide.Typography.bold)
-        sub.text = "Inimigos: \(config.enemyHealth) ❤️ | Moedas: x\(config.coinsPerKill) 🪙"
+        sub.text = "Stronger enemies, greater rewards"
         sub.fontSize = 14
         sub.fontColor = .white
         sub.position = CGPoint(x: 0, y: -24)
