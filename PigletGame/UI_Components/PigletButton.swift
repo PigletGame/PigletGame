@@ -34,7 +34,7 @@ struct PigletButton: View {
     }
 
     enum ColorStyle {
-        case red, yellow
+        case red, yellow, disabledButton
 
         var background: Color {
             switch self {
@@ -42,6 +42,8 @@ struct PigletButton: View {
                 StyleGuide.Colors.darkRed
             case .yellow:
                 StyleGuide.Colors.yellow
+            case .disabledButton:
+                StyleGuide.Colors.disabledButton
             }
         }
 
@@ -51,6 +53,8 @@ struct PigletButton: View {
                 Color.white
             case .yellow:
                 Color.black
+            case .disabledButton:
+                Color.white
             }
         }
     }
