@@ -24,7 +24,7 @@ class PowerUpEntity: GKEntity {
         if kind == .life {
             sprite = SKSpriteNode(imageNamed: "HUD/Heart")
             sprite.texture?.filteringMode = .nearest
-            sprite.size = CGSize(width: 24, height: 24)
+            sprite.size = CGSize(width: 15, height: 15)
             sprite.zPosition = 5
             sprite.name = "powerUp"
             sprite.entity = self
@@ -37,7 +37,7 @@ class PowerUpEntity: GKEntity {
         } else {
             sprite = SKSpriteNode(imageNamed: "HUD/Shield")
             sprite.texture?.filteringMode = .nearest
-            sprite.size = CGSize(width: 24, height: 24)
+            sprite.size = CGSize(width: 15, height: 15)
             sprite.zPosition = 5
             sprite.name = "powerUp"
             sprite.entity = self
