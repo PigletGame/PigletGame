@@ -67,7 +67,7 @@ class GameScene: SKScene {
 
         self.camera = cameraNode
         worldNode.addChild(cameraNode)
-        cameraNode.setScale(1)
+        cameraNode.setScale(0.65)
 
         setupLevel()
         setupJoysticks()
@@ -257,7 +257,7 @@ class GameScene: SKScene {
                             handleEnemyKilled(enemy)
                         } else {
                             // Visual feedback for hit
-                            enemy.component(ofType: VisualComponent.self)?.flash(color: .white, duration: 0.1)
+                            enemy.component(ofType: VisualComponent.self)?.flash(color: .red, duration: 0.1)
                         }
                     }
                     break
