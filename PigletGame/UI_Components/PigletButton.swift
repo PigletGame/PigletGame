@@ -5,7 +5,6 @@
 //  Created by Adriel de Souza on 18/03/26.
 //
 
-
 import SwiftUI
 
 struct PigletButton: View {
@@ -66,7 +65,7 @@ struct PigletButton: View {
 
     var body: some View {
         Button(action: {
-            AudioService.shared.play("botao2.m4a", volume: 0.18)
+            AudioService.shared.play("botao1.m4a", volume: 0.18)
             onTap()
         }) {
             content
@@ -85,6 +84,8 @@ struct PigletButton: View {
                         .fill(size != .icon ? Color.black : Color.clear)
                         .offset(x: 3, y: 3)
                 )
+                .offset(x: isPressed ? 3 : 0, y: isPressed ? 3 : 0)
+                .animation(.easeOut(duration: 0.08), value: isPressed)
         }
         .buttonStyle(PressableStyle(isPressed: $isPressed))
     }
@@ -111,10 +112,10 @@ struct PigletButton: View {
             }
         }
     }
-    
+
     struct PressableStyle: ButtonStyle {
         @Binding var isPressed: Bool
-        
+
         func makeBody(configuration: Configuration) -> some View {
             configuration.label
                 .onChange(of: configuration.isPressed) { _, newValue in
@@ -125,22 +126,13 @@ struct PigletButton: View {
 }
 
 #Preview {
-    HStack(spacing: 16) {
-        PigletButton(
-            size: .medium,
-            text: "Return to Menu",
-            icon: "arrowshape.turn.up.backward.fill"
-        ) {
-            // showVillage = true
-        }
 
-        PigletButton(
-            size: .medium,
-            text: "Play Again",
-            icon: "poweroutlet.type.a.fill",
-            color: .yellow
-        ) {
-            // showGame = true
-        }
+    PigletButton(
+        size: .medium,
+        text: "Play Again",
+        icon: "poweroutlet.type.a.fill",
+        color: .yellow
+    ) {
+        // showGame = true
     }
 }
