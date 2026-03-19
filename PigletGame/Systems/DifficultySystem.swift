@@ -8,7 +8,7 @@ struct DifficultyConfig {
     var maxEnemies:         Int            = 7
     var rangedShotInterval: TimeInterval   = 2.6
     var enemyBulletSpeed:   CGFloat        = 145
-    var meleeCooldown:      TimeInterval   = 1.1
+    var meleeCooldown:      TimeInterval   = 2.0
     var coinsPerKill:       Int            = 1
     var enemyHealth:        Int            = 1
 }
@@ -45,7 +45,7 @@ class DifficultySystem {
         config.maxEnemies         = min(24,   config.maxEnemies    + 2)
         config.rangedShotInterval = max(0.85, config.rangedShotInterval - 0.22)
         config.enemyBulletSpeed   = min(295,  config.enemyBulletSpeed   + 22)
-        config.meleeCooldown      = max(0.48, config.meleeCooldown      - 0.09)
+        config.meleeCooldown      = max(1, config.meleeCooldown      - 0.09)
         config.coinsPerKill       = min(10,   config.coinsPerKill       + 1)
         config.enemyHealth        = min(5,    config.enemyHealth        + 1)
 
