@@ -11,13 +11,16 @@ import SpriteKit
 struct GameView: View {
     @Environment(\.dismiss) var dismiss
     @State private var isPaused = false
-    @State private var gameScene: GameScene?
+    @State private var currentScene: SKScene?
+    
+    var initialSceneType: SKScene.Type = GameScene.self
 
     var body: some View {
         ZStack {
             GeometryReader { geometry in
-                if let scene = gameScene {
+                if let scene = currentScene {
                     SpriteView(scene: scene)
+                        .id(scene)
                         .ignoresSafeArea()
                 } else {
                     Color.black
@@ -32,7 +35,7 @@ struct GameView: View {
                 PauseView(
                     onResume: {
                         isPaused = false
-                        gameScene?.resumeGame()
+                        (currentScene as? GameScene)?.resumeGame()
                     },
                     onExit: {
                         dismiss()
@@ -44,13 +47,37 @@ struct GameView: View {
     }
 
     private func setupScene(size: CGSize) {
-        let scene = GameScene(size: size)
-        scene.dismiss = dismiss
+        let scene: SKScene
+        if initialSceneType == OnboardingScene.self {
+            let onboarding = OnboardingScene(size: size)
+            onboarding.dismiss = dismiss
+            onboarding.onComplete = {
+                UserDefaults.standard.set(true, forKey: OnboardingScene.seenKey)
+                switchToGame(size: size)
+            }
+            scene = onboarding
+        } else {
+            scene = createGameScene(size: size)
+        }
         scene.scaleMode = .resizeFill
-        scene.onPause = {
+        self.currentScene = scene
+    }
+
+    private func createGameScene(size: CGSize) -> GameScene {
+        let game = GameScene(size: size)
+        game.dismiss = dismiss
+        game.onPause = {
             isPaused = true
         }
-        self.gameScene = scene
+        return game
+    }
+
+    @MainActor
+    private func switchToGame(size: CGSize) {
+        AudioService.shared.play("bumbo.mp3")
+            let game = createGameScene(size: size)
+            game.scaleMode = .resizeFill
+            self.currentScene = game
     }
 }
 
