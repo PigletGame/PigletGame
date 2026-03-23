@@ -51,6 +51,7 @@ class PowerUpEntity: GKEntity {
         rootNode.addChild(sprite)
         
         let visualComp = VisualComponent(node: rootNode)
+        visualComp.node.position = pos
         addComponent(visualComp)
         
         // Unify explosion effect

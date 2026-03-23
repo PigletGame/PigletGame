@@ -23,6 +23,7 @@ class EnemyEntity: GKEntity {
             timePerFrame: 0.05
         )
 
+        animComp.node.position = position
         animComp.node.name = "enemy"
         animComp.node.entity = self
         
