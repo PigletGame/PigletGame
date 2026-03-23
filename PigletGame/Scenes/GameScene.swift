@@ -296,8 +296,12 @@ class GameScene: SKScene {
                         if enemy.health.isDead {
                             handleEnemyKilled(enemy)
                         } else {
-                            // Visual feedback for hit
-                            VisualComponent.from(enemy)?.flash(color: .red, duration: 0.1)
+                            // Visual feedback for hit with immunity
+                            let immunityDuration: TimeInterval = 0.5
+                            enemy.health.setInvincible(true)
+                            VisualComponent.from(enemy)?.blink(colors: [.red, .white], duration: immunityDuration) {
+                                enemy.health.setInvincible(false)
+                            }
                         }
                     }
                     break

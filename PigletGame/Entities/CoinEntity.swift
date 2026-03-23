@@ -28,7 +28,7 @@ class CoinEntity: GKEntity {
         addComponent(visualComp)
         
         // Unify explosion effect
-        addComponent(LootAnimationComponent(lifetime: 6.0))
+        addComponent(LootAnimationComponent(lifetime: 8.0))
     }
 
     required init?(coder aDecoder: NSCoder) { fatalError() }

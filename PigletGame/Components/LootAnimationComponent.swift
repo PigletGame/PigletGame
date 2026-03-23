@@ -45,7 +45,7 @@ class LootAnimationComponent: GKComponent {
         let jumpSequence = SKAction.sequence([jumpUp, fallDown])
                 
         // 4. Lifecycle (Wait and Remove)
-        let blinkDuration: TimeInterval = 4.0
+        let blinkDuration: TimeInterval = 3.0
         let waitDuration = max(0.1, lifetime - blinkDuration)
         
         let blink = SKAction.repeat(SKAction.sequence([
