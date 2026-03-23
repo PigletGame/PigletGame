@@ -31,7 +31,12 @@ class GameScene: SKScene {
     private var lastUpdateTime: TimeInterval = 0
     private var scoreAccum:  TimeInterval = 0
     private var isGameOver   = false
-    private var isPausedManually = false
+    private var isPausedManually = false {
+        didSet {
+            isResumingGame = !isPausedManually
+        }
+    }
+    private var isResumingGame = false
 
     // map config
     let tileWidth: CGFloat = 16
@@ -214,6 +219,7 @@ class GameScene: SKScene {
     // MARK: – Update Loop
 
     override func update(_ currentTime: TimeInterval) {
+        if isResumingGame { lastUpdateTime = currentTime; isResumingGame = false }
         guard !isGameOver && !isPausedManually else { return }
 
         if lastUpdateTime == 0 { lastUpdateTime = currentTime }
