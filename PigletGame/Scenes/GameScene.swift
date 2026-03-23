@@ -42,7 +42,7 @@ class GameScene: SKScene {
     let tileWidth: CGFloat = 16
     let mapWidthInTiles = 30
     let mapHeightInTiles = 30
-    let mapPadding = 100
+    let mapPadding = 20
     var mapSize: CGSize {
         .init(width: (Double(mapWidthInTiles) * tileWidth), height: (Double(mapHeightInTiles) * tileWidth))
     }
@@ -219,6 +219,7 @@ class GameScene: SKScene {
     // MARK: – Update Loop
 
     override func update(_ currentTime: TimeInterval) {
+        print(self.entityManager.entities.count)
         if isResumingGame { lastUpdateTime = currentTime; isResumingGame = false }
         guard !isGameOver && !isPausedManually else { return }
 
@@ -275,6 +276,14 @@ class GameScene: SKScene {
         // Bullet vs Enemy
         for bullet in bullets {
             guard let bulletPos = bullet.component(ofType: PositionComponent.self)?.position else { continue }
+
+            if bulletPos.x < tileWidth * -10
+                || bulletPos.y < tileWidth * -10
+                || bulletPos.x > mapSize.width * 1.5
+                || bulletPos.y > mapSize.height * 1.5 {
+                entityManager.removeEntity(bullet)
+            }
+
             for enemy in enemies {
                 guard let enemyPos = enemy.component(ofType: PositionComponent.self)?.position else { continue }
                 let dist = hypot(bulletPos.x - enemyPos.x, bulletPos.y - enemyPos.y)
