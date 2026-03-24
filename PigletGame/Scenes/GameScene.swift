@@ -177,6 +177,8 @@ class GameScene: SKScene {
         isPausedManually = true
         self.isPaused = true
         releaseAllJoystickTouches()
+        leftJoystick.alpha = 0
+        rightJoystick.alpha = 0
         AudioService.shared.pause("inGameCombat.mp3")
         onPause?()
     }
@@ -184,6 +186,8 @@ class GameScene: SKScene {
     func resumeGame() {
         isPausedManually = false
         self.isPaused = false
+        leftJoystick.alpha = 1
+        rightJoystick.alpha = 1
         AudioService.shared.resume("inGameCombat.mp3")
     }
 

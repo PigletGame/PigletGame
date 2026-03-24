@@ -24,7 +24,24 @@ class LootComponent: GKComponent {
     }
 
     /// Retorna a lista de drops para um único inimigo morto.
-    func roll() -> [DropResult] {
+//    func roll() -> [DropResult] {
+//        var results: [DropResult] = [.coin]
+//
+//        if Double.random(in: 0...1) < extraCoinChance {
+//            results.append(.extraCoin)
+//        }
+//
+//        let roll = Double.random(in: 0...1)
+//        if roll < shieldDropChance {
+//            results.append(.shield)
+//        } else if roll < shieldDropChance + lifeDropChance {
+//            results.append(.life)
+//        }
+//
+//        return results
+//    }
+
+    func roll(currentLives: Int, hasShield: Bool) -> [DropResult] {
         var results: [DropResult] = [.coin]
 
         if Double.random(in: 0...1) < extraCoinChance {
@@ -32,9 +49,9 @@ class LootComponent: GKComponent {
         }
 
         let roll = Double.random(in: 0...1)
-        if roll < shieldDropChance {
+        if !hasShield && roll < shieldDropChance {
             results.append(.shield)
-        } else if roll < shieldDropChance + lifeDropChance {
+        } else if currentLives <= 1 && roll < shieldDropChance + lifeDropChance {
             results.append(.life)
         }
 
