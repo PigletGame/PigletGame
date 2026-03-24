@@ -12,6 +12,7 @@ class BulletEntity: GKEntity {
         let node = SKSpriteNode(imageNamed: sprite)
         node.texture?.filteringMode = .nearest
         node.zPosition = 3
+        node.position = position
 
         addComponent(VisualComponent(node: node))
         addComponent(MovementByDirectionComponent(direction: direaction, speed: 8.0, shouldRotateSprite: true))

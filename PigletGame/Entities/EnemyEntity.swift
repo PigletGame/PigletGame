@@ -8,6 +8,7 @@ class EnemyEntity: GKEntity {
     let ai = AIComponent()
     let loot = LootComponent()
     let health: HealthComponent
+    var lastHitTime: TimeInterval = 0
 
     init(at position: CGPoint, hp: Int = 1) {
         self.health = HealthComponent(lives: hp)
@@ -23,6 +24,7 @@ class EnemyEntity: GKEntity {
             timePerFrame: 0.05
         )
 
+        animComp.node.position = position
         animComp.node.name = "enemy"
         animComp.node.entity = self
         
