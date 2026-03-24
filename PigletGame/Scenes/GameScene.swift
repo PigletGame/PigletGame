@@ -51,6 +51,7 @@ class GameScene: SKScene {
 
     var dismiss: DismissAction?
     var onPause: (() -> Void)?
+    var onRankUp: ((Int) -> Void)?
     var onComplete: ((Int, Int, Int) -> Void)?
 
     override init() {
@@ -94,57 +95,81 @@ class GameScene: SKScene {
     }
 
     // MARK: – Setup
-
     private func setupLevel() {
+        // Create noise for terrain distribution
+        let noiseSource = GKPerlinNoiseSource(frequency: 0.2, octaveCount: 3, persistence: 0.5, lacunarity: 2.0, seed: Int32.random(in: 0...1000))
+        let noise = GKNoise(noiseSource)
+        let noiseMap = GKNoiseMap(noise, size: vector_double2(Double(mapWidthInTiles + 2 * mapPadding), Double(mapHeightInTiles + 2 * mapPadding)),
+                                  origin: vector_double2(0, 0),
+                                  sampleCount: vector_int2(Int32(mapWidthInTiles + 2 * mapPadding), Int32(mapHeightInTiles + 2 * mapPadding)),
+                                  seamless: false)
+
         for x in -mapPadding..<mapWidthInTiles+mapPadding {
             for y in -mapPadding..<mapHeightInTiles+mapPadding {
+                
+                let xPosition = CGFloat(x) * tileWidth
+                let yPosition = CGFloat(y) * tileWidth
+
+                // 1. Check if inside Pebble center area
+                if x >= 0 && x <= mapWidthInTiles && y >= -1 && y <= mapHeightInTiles {
+                    let noiseX = Int32(x + mapPadding)
+                    let noiseY = Int32(y + mapPadding)
+                    let noiseValue = noiseMap.value(at: vector_int2(noiseX, noiseY))
+
+                    // Always Pebble as base
+                    let base = SKSpriteNode(imageNamed: "Tile/Pebble")
+                    base.texture?.filteringMode = .nearest
+                    base.anchorPoint = .zero
+                    base.position = CGPoint(x: xPosition, y: yPosition)
+                    base.zPosition = -10
+                    base.size = .init(width: tileWidth, height: tileWidth)
+                    worldNode.addChild(base)
+
+                    // Overlay Grass with opacity based on noise
+                    let grass = SKSpriteNode(imageNamed: "Tile/Pebble_Grass")
+                    grass.texture?.filteringMode = .nearest
+                    grass.anchorPoint = .zero
+                    grass.position = base.position
+                    grass.zPosition = -9
+                    grass.size = base.size
+                    
+                    // Smooth transition: use noise value (usually -1 to 1)
+                    let alphaVal = CGFloat((noiseValue - 0.0) / 0.5)
+                    grass.alpha = max(0, min(1, alphaVal))
+                    
+                    if grass.alpha > 0 {
+                        worldNode.addChild(grass)
+                    }
+                    continue
+                }
+
+                // 2. Otherwise handle Fences or Background Grass
                 var textureName = "Tile/Grass"
                 var xScale: CGFloat = 1.0
                 
-                // Pebble center
-                if x >= 0 && x <= mapWidthInTiles && y >= -1 && y <= mapHeightInTiles {
-                    textureName = "Tile/Pebble"
-                }
-
-                // Vertical Fences
-                else if (x == -1 ||  x == mapWidthInTiles + 1)  && y >= -1 && y <= mapHeightInTiles {
+                if (x == -1 || x == mapWidthInTiles + 1) && y >= -1 && y <= mapHeightInTiles {
                     textureName = "Tile/Fence_TD"
-                }
-
-                // Horizontal Fences
-                else if (y == -2  || y == mapHeightInTiles + 1) && x >= 0 && x <= mapWidthInTiles {
+                } else if (y == -2 || y == mapHeightInTiles + 1) && x >= 0 && x <= mapWidthInTiles {
                     textureName = "Tile/Fence_LR"
-                }
-
-                // Corners Bottom
-                else if x == -1 && y == -2 {
+                } else if x == -1 && y == -2 {
                     textureName = "Tile/Fence_Corner_Bottom"
                 } else if x == mapWidthInTiles + 1 && y == -2 {
                     textureName = "Tile/Fence_Corner_Bottom"
                     xScale = -1.0
-                }
-
-                // Corners Top
-                else if x == -1 && y == mapHeightInTiles + 1 {
+                } else if x == -1 && y == mapHeightInTiles + 1 {
                     textureName = "Tile/Fence_Corner_Top"
                 } else if x == mapWidthInTiles + 1 && y == mapHeightInTiles + 1 {
                     textureName = "Tile/Fence_Corner_Top"
                     xScale = -1.0
                 }
 
+                let finalX = xScale < 0 ? xPosition + tileWidth : xPosition
                 let tile = SKSpriteNode(imageNamed: textureName)
                 tile.texture?.filteringMode = .nearest
                 tile.anchorPoint = .zero
-                tile.xScale = xScale
-
-                let xPosition = CGFloat(x) * tileWidth
-                let yPosition = CGFloat(y) * tileWidth
-                
-                // Adjust position if flipped horizontally since anchor is at (0,0)
-                let finalX = xScale < 0 ? xPosition + tileWidth : xPosition
-
                 tile.position = CGPoint(x: finalX, y: yPosition)
                 tile.zPosition = -10
+                tile.xScale = xScale
                 tile.size = .init(width: tileWidth, height: tileWidth)
                 worldNode.addChild(tile)
             }
@@ -291,7 +316,7 @@ class GameScene: SKScene {
     }
 
     private func setupSystems() {
-        difficultySystem = DifficultySystem(node: cameraNode, sceneSize: size)
+        difficultySystem = DifficultySystem(node: cameraNode, sceneSize: size, onDificultyIncrease: self.onRankUp)
         spawnSystem      = SpawnSystem(scene: self, mapSize: mapSize)
         combatSystem     = CombatSystem(scene: self, player: player)
         coinSystem       = ItemPickupSystem(scene: self, player: player)
