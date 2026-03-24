@@ -10,6 +10,15 @@ class BulletEntity: GKEntity {
         addComponent(PositionComponent(position: position))
 
         let node = SKSpriteNode(imageNamed: sprite)
+
+        let textureSize = node.texture!.size()
+        let targetSize = CGSize(width: 18, height: 18)
+
+        let scale = min(targetSize.width / textureSize.width,
+                        targetSize.height / textureSize.height)
+
+        node.setScale(scale)
+
         node.texture?.filteringMode = .nearest
         node.zPosition = 3
 
