@@ -59,9 +59,7 @@ struct GameView: View {
                     kills: stats.kills,
                     time: stats.time,
                     dismiss: dismiss) {
-                        if let currentScene {
-                            setupScene(size: currentScene.size)
-                        }
+                        restartGame()
                     }
             }
 
@@ -209,6 +207,8 @@ struct GameView: View {
         isGameOver = false
         finalStats = nil
         isPaused = false
+        shouldRunPostOnboardingTips = false
+        postOnboardingStep = .none
 
         let game = createGameScene(size: sceneSize)
         game.scaleMode = .resizeFill
