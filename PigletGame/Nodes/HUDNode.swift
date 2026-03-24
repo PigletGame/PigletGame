@@ -48,7 +48,7 @@ class HUDNode: SKNode {
 
         // --- Right Side ---
         // Score Row (Icon on Right)
-        scoreIcon = makeIcon(named: "PLACEHOLDER/arrow") // Placeholder as requested
+        scoreIcon = makeIcon(named: "HUD/Score") 
         scoreIcon.anchorPoint = CGPoint(x: 1, y: 0.5)
         scoreIcon.position = CGPoint(x: rightX, y: topY)
         addChild(scoreIcon)

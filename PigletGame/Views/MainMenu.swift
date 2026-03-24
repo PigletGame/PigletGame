@@ -12,6 +12,7 @@ struct MainMenu: View {
     @State private var showOnboarding = false
     @State private var showMenu = false
     @State private var isHapticsEnabled = HapticsService.shared.isEnabled
+    @State private var isAudioMuted = AudioService.shared.isAudioMuted
 
     @State var showGame: Bool = false
     @State var showVillage: Bool = false
@@ -34,6 +35,7 @@ struct MainMenu: View {
                     showOnboarding = true
                 }
                 isHapticsEnabled = HapticsService.shared.isEnabled
+                isAudioMuted = AudioService.shared.isAudioMuted
                 showMenu = true
                 AudioService.shared.play("menu.mp3", loop: true, volume: 0.1)
             }
@@ -45,16 +47,18 @@ struct MainMenu: View {
                 PigletButton(
                     size: .icon,
                     text: "",
-                    icon: "speaker\(AudioService.shared.isAudioMuted ? ".slash" : "").fill",
-                    color: AudioService.shared.isAudioMuted ? .disabledButton : .red
+                    icon: isAudioMuted ? "speaker.slash.fill" : "speaker.wave.2.fill",
+                    color: isAudioMuted ? .disabledButton : .red
                 ) {
-                    AudioService.shared.toggleMute()
+                    isAudioMuted.toggle()
+                    AudioService.shared.setMuted(isAudioMuted)
                 }
 
                 PigletButton(
                     size: .icon,
                     text: "",
-                    icon: isHapticsEnabled ? "hand.tap.fill" : "hand.raised.slash.fill",
+                    icon: isHapticsEnabled ? "Menu/haptics" : "Menu/disabledHaptics",
+                    isAssetIcon: true,
                     color: isHapticsEnabled ? .red : .disabledButton
                 ) {
                     isHapticsEnabled.toggle()

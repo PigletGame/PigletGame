@@ -13,8 +13,8 @@ struct GameOverView: View {
     private let finalKills: Int
     private let finalTime: Int
     private let dismiss: DismissAction?
+    private let onRestart: (() -> Void)?
 
-    @State var showGame: Bool = false
     @State var returnMenu: Bool = false
     
     // Animation states
@@ -27,12 +27,14 @@ struct GameOverView: View {
         coins: Int,
         kills: Int,
         time: Int,
-        dismiss: DismissAction? = nil
+        dismiss: DismissAction? = nil,
+        onRestart: (() -> Void)? = nil
     ) {
         self.finalCoins = coins
         self.finalKills = kills
         self.finalTime = time
         self.dismiss = dismiss
+        self.onRestart = onRestart
     
         GameDataStore.shared.recordRun(
             collectedCoins: finalCoins,
@@ -153,7 +155,7 @@ struct GameOverView: View {
                             icon: "poweroutlet.type.a.fill",
                             color: .yellow
                         ) {
-                            showGame = true
+                            onRestart?()
                         }
                     }
                 }
@@ -164,9 +166,6 @@ struct GameOverView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .navigationDestination(isPresented: $showGame) {
-            GameView()
-        }
         .navigationDestination(isPresented: $returnMenu) {
             MainMenu()
         }

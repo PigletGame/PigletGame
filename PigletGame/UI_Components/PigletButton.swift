@@ -69,6 +69,7 @@ struct PigletButton: View {
     var size: ButtonSize = .large
     var text: String
     var icon: String
+    var isAssetIcon: Bool = false
     var color: ColorStyle = .red
     var price: Int? = nil
     var onTap: () -> Void
@@ -107,8 +108,7 @@ struct PigletButton: View {
         if size == .large || size == .largeTwoLine {
             VStack(spacing: 4) {
                 HStack(spacing: 6) {
-                    Image(systemName: icon)
-                        .font(.system(size: 15, weight: .black))
+                    iconView(fontSize: 15)
                     Text(text)
                         .font(.custom("Geist-Black", size: size.fontSize))
                 }
@@ -123,21 +123,33 @@ struct PigletButton: View {
             }
         } else if size == .smallWide {
             HStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.system(size: 15, weight: .black))
+                iconView(fontSize: 15)
                 Text(text)
                     .font(.custom("Geist-Bold", size: size.fontSize))
             }
         } else {
             VStack(spacing: 6) {
-                Image(systemName: icon)
-                    .font(.system(size: 15, weight: .black))
+                iconView(fontSize: 15)
                 
                 if size != .icon {
                     Text(text)
                         .font(.custom("Geist-Bold", size: size.fontSize))
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private func iconView(fontSize: CGFloat) -> some View {
+        if isAssetIcon {
+            Image(icon)
+                .resizable()
+                .renderingMode(.template)
+                .scaledToFit()
+                .frame(width: fontSize, height: fontSize)
+        } else {
+            Image(systemName: icon)
+                .font(.system(size: fontSize, weight: .black))
         }
     }
     

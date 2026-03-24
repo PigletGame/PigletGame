@@ -14,6 +14,8 @@ class GameScene: SKScene {
     private var hud:    HUDNode!
     private var leftJoystick:  JoystickNode!
     private var rightJoystick: JoystickNode!
+    private var leftJoystickTouchId: ObjectIdentifier?
+    private var rightJoystickTouchId: ObjectIdentifier?
 
     // MARK: – Systems
 
@@ -81,6 +83,9 @@ class GameScene: SKScene {
         // Music transition
         AudioService.shared.stop("menu.mp3")
         AudioService.shared.play("inGameCombat.mp3", loop: true, volume: 0.07)
+        if isPaused {
+            AudioService.shared.pause("inGameCombat.mp3")
+        }
     }
 
     // MARK: – Setup
@@ -166,6 +171,7 @@ class GameScene: SKScene {
         guard !isGameOver else { return }
         isPausedManually = true
         self.isPaused = true
+        releaseAllJoystickTouches()
         AudioService.shared.pause("inGameCombat.mp3")
         onPause?()
     }
@@ -179,19 +185,100 @@ class GameScene: SKScene {
     private func setupJoysticks() {
         leftJoystick = JoystickNode(side: .left)
         leftJoystick.zPosition = 99
-        leftJoystick.position = .init(
-            x: -size.width / 2 + 100,
-            y: -size.height / 2 + 100
-        )
+        leftJoystick.deactivate()
         cameraNode.addChild(leftJoystick)
 
         rightJoystick = JoystickNode(side: .right)
         rightJoystick.zPosition = 99
-        rightJoystick.position = .init(
-            x: size.width / 2 - 100,
-            y: -size.height / 2 + 100
-        )
+        rightJoystick.deactivate()
         cameraNode.addChild(rightJoystick)
+    }
+
+    // MARK: - Touches
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard !isGameOver, !isPausedManually else { return }
+
+        for touch in touches {
+            if isTouchInHUD(touch) { continue }
+
+            let touchId = ObjectIdentifier(touch)
+            let pointInCamera = touch.location(in: cameraNode)
+
+            if pointInCamera.x < 0 {
+                guard leftJoystickTouchId == nil else { continue }
+                leftJoystickTouchId = touchId
+                leftJoystick.activate(at: pointInCamera)
+                leftJoystick.updateTouch(at: pointInCamera)
+            } else {
+                guard rightJoystickTouchId == nil else { continue }
+                rightJoystickTouchId = touchId
+                rightJoystick.activate(at: pointInCamera)
+                rightJoystick.updateTouch(at: pointInCamera)
+            }
+        }
+    }
+
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard !isGameOver else { return }
+
+        for touch in touches {
+            let touchId = ObjectIdentifier(touch)
+            let pointInCamera = touch.location(in: cameraNode)
+
+            if leftJoystickTouchId == touchId {
+                leftJoystick.updateTouch(at: pointInCamera)
+            } else if rightJoystickTouchId == touchId {
+                rightJoystick.updateTouch(at: pointInCamera)
+            }
+        }
+    }
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for touch in touches {
+            releaseJoystickTouch(touch)
+        }
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        touchesEnded(touches, with: event)
+    }
+
+    private func releaseJoystickTouch(_ touch: UITouch) {
+        let touchId = ObjectIdentifier(touch)
+
+        if leftJoystickTouchId == touchId {
+            leftJoystickTouchId = nil
+            leftJoystick.deactivate()
+        }
+
+        if rightJoystickTouchId == touchId {
+            rightJoystickTouchId = nil
+            rightJoystick.deactivate()
+        }
+    }
+
+    private func releaseAllJoystickTouches() {
+        leftJoystickTouchId = nil
+        rightJoystickTouchId = nil
+        leftJoystick?.deactivate()
+        rightJoystick?.deactivate()
+    }
+
+    private func isTouchInHUD(_ touch: UITouch) -> Bool {
+        let pointInScene = touch.location(in: self)
+        let touchedNodes = nodes(at: pointInScene)
+
+        return touchedNodes.contains { node in
+            var current: SKNode? = node
+            while let currentNode = current {
+                if currentNode === hud {
+                    return true
+                }
+                current = currentNode.parent
+            }
+            return false
+        }
     }
 
     private func setupSystems() {
@@ -350,6 +437,7 @@ class GameScene: SKScene {
 
     private func triggerGameOver() {
         isGameOver = true
+        releaseAllJoystickTouches()
         
         // Music transition and endind haptics
         AudioService.shared.stop("inGameCombat.mp3")
