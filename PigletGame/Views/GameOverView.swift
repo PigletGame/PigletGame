@@ -21,7 +21,6 @@ struct GameOverView: View {
 
     @State private var hasSaved = false
 
-    @State var showGame: Bool = false
     @State var returnMenu: Bool = false
 
     // Animation states
