@@ -44,6 +44,7 @@ class GameScene: SKScene {
 
     var dismiss: DismissAction?
     var onPause: (() -> Void)?
+    var onRankUp: ((Int) -> Void)?
     var onComplete: ((Int, Int, Int) -> Void)?
 
     override init() {
@@ -219,7 +220,7 @@ class GameScene: SKScene {
     }
 
     private func setupSystems() {
-        difficultySystem = DifficultySystem(node: cameraNode, sceneSize: size)
+        difficultySystem = DifficultySystem(node: cameraNode, sceneSize: size, onDificultyIncrease: self.onRankUp)
         spawnSystem      = SpawnSystem(scene: self, mapSize: mapSize)
         combatSystem     = CombatSystem(scene: self, player: player)
         coinSystem       = ItemPickupSystem(scene: self, player: player)

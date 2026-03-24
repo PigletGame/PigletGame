@@ -21,10 +21,12 @@ class DifficultySystem {
     private let stepInterval: TimeInterval = 30
     private weak var scene: SKNode?
     private let sceneSize: CGSize
+    var onDificultyIncrease: ((Int) -> Void)?
 
-    init(node: SKNode, sceneSize: CGSize) {
+    init(node: SKNode, sceneSize: CGSize, onDificultyIncrease: ((Int) -> Void)? = nil) {
         self.scene = node
         self.sceneSize = sceneSize
+        self.onDificultyIncrease = onDificultyIncrease
     }
 
     // MARK: – Update
@@ -49,31 +51,6 @@ class DifficultySystem {
         config.coinsPerKill       = min(10,   config.coinsPerKill       + 1)
         config.enemyHealth        = min(5,    config.enemyHealth        + 1)
 
-        showAlert()
-    }
-
-    private func showAlert() {
-        guard let scene = self.scene else { return }
-        
-        let alert = SKLabelNode(fontNamed: StyleGuide.Typography.heavy)
-        alert.text      = "Difficulty \(config.level)"
-        alert.fontSize  = 22
-        alert.fontColor = SKColor(red: 1, green: 0.3, blue: 0.1, alpha: 1)
-        alert.position  = CGPoint(x: 0, y: sceneSize.height / 2 - 30)
-        alert.zPosition = 100
-        scene.addChild(alert)
-
-        let sub = SKLabelNode(fontNamed: StyleGuide.Typography.bold)
-        sub.text = "Stronger enemies, greater rewards"
-        sub.fontSize = 14
-        sub.fontColor = .white
-        sub.position = CGPoint(x: 0, y: -24)
-        alert.addChild(sub)
-
-        alert.run(SKAction.sequence([
-            SKAction.wait(forDuration: 2.0),
-            SKAction.fadeOut(withDuration: 0.5),
-            SKAction.removeFromParent()
-        ]))
+        onDificultyIncrease?(config.level)
     }
 }

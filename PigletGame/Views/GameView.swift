@@ -12,13 +12,15 @@ struct GameView: View {
     @Environment(\.dismiss) var dismiss
     @State private var isPaused = false
     @State private var isGameOver = false
+    @State private var showRankUp = false
+    @State private var currentRank = 1
     @State private var finalStats: (coins: Int, kills: Int, time: Int)?
     @State private var currentScene: SKScene?
     
     var initialSceneType: SKScene.Type = GameScene.self
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .top) {
             GeometryReader { geometry in
                 if let scene = currentScene {
                     SpriteView(scene: scene)
@@ -32,6 +34,23 @@ struct GameView: View {
                 }
             }
             .ignoresSafeArea()
+
+            // In your body:
+            if showRankUp {
+                RankUpOverlay(rank: currentRank)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .onTapGesture {
+                        withAnimation(.easeIn(duration: 0.3)) {
+                            showRankUp = false
+                        }
+                    }
+                    .task {
+                        try? await Task.sleep(for: .seconds(2.5))
+                        withAnimation(.easeIn(duration: 0.3)) {
+                            showRankUp = false
+                        }
+                    }
+            }
 
             if isPaused {
                 PauseView(
@@ -53,6 +72,8 @@ struct GameView: View {
                     dismiss: dismiss
                 )
             }
+
+
         }
         .navigationBarBackButtonHidden()
     }
@@ -80,6 +101,12 @@ struct GameView: View {
         game.dismiss = dismiss
         game.onPause = {
             isPaused = true
+        }
+        game.onRankUp = { newRank in
+            currentRank = newRank
+                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                    showRankUp = true
+                }
         }
         game.onComplete = { coins, kills, time in
             self.finalStats = (coins, kills, time)
