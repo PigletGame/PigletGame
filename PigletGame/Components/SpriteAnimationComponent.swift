@@ -6,13 +6,17 @@ class SpriteAnimationComponent: VisualComponent {
     let walkingSpritesName: [String]
     let timePerFrame: Double
     let size: CGFloat
+    
+    let sprite: SKSpriteNode
 
     private let walkingActionKey = "walkingAnimation"
 
     init(`default`: String, walkingSprites: [String], size: CGFloat = 32, timePerFrame: Double = 0.15) {
-        let node = SKSpriteNode(imageNamed: `default`)
-        node.texture?.filteringMode = .nearest
-        node.size = CGSize(width: size, height: size)
+        let node = SKNode()
+        self.sprite = SKSpriteNode(imageNamed: `default`)
+        self.sprite.texture?.filteringMode = .nearest
+        self.sprite.size = CGSize(width: size, height: size)
+        node.addChild(self.sprite)
 
         self.defaultSpriteName = `default`
         self.walkingSpritesName = walkingSprites
@@ -30,12 +34,10 @@ class SpriteAnimationComponent: VisualComponent {
             if posComponent.lastDeltaPosition == .zero {
                 stopWalking()
             } else {
-                if let sprite = node as? SKSpriteNode {
-                    if posComponent.lastDeltaPosition.x > 0 {
-                        sprite.xScale = 1
-                    } else if posComponent.lastDeltaPosition.x < 0 {
-                        sprite.xScale = -1
-                    }
+                if posComponent.lastDeltaPosition.x > 0 {
+                    sprite.xScale = 1
+                } else if posComponent.lastDeltaPosition.x < 0 {
+                    sprite.xScale = -1
                 }
                 startWalking()
             }
@@ -43,23 +45,21 @@ class SpriteAnimationComponent: VisualComponent {
     }
 
     private func startWalking() {
-        guard node.action(forKey: walkingActionKey) == nil else { return }
+        guard sprite.action(forKey: walkingActionKey) == nil else { return }
 
         let textures = walkingSpritesName.map { SKTexture(imageNamed: $0) }
         textures.forEach { $0.filteringMode = .nearest }
 
         let animation = SKAction.animate(with: textures, timePerFrame: timePerFrame)
         let loop = SKAction.repeatForever(animation)
-        node.run(loop, withKey: walkingActionKey)
+        sprite.run(loop, withKey: walkingActionKey)
     }
 
     private func stopWalking() {
-        guard node.action(forKey: walkingActionKey) != nil else { return }
+        guard sprite.action(forKey: walkingActionKey) != nil else { return }
 
-        node.removeAction(forKey: walkingActionKey)
-        if let sprite = node as? SKSpriteNode {
-            sprite.texture = SKTexture(imageNamed: defaultSpriteName)
-            sprite.texture?.filteringMode = .nearest
-        }
+        sprite.removeAction(forKey: walkingActionKey)
+        sprite.texture = SKTexture(imageNamed: defaultSpriteName)
+        sprite.texture?.filteringMode = .nearest
     }
 }

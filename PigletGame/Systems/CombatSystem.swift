@@ -24,7 +24,7 @@ class CombatSystem {
 
         AudioService.shared.play("shot.wav", volume: 0.08)
 
-        let bullet = BulletEntity(position: position, direaction: direction, sprite: "PLACEHOLDER/arrow")
+        let bullet = BulletEntity(position: position, direaction: direction, sprite: "Arrow")
         scene.entityManager.addEntity(bullet)
     }
 

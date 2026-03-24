@@ -6,8 +6,8 @@ struct DifficultyConfig {
     var spawnInterval:      TimeInterval   = 2.4
     var enemySpeed:         CGFloat        = 65
     var maxEnemies:         Int            = 7
-    var rangedShotInterval: TimeInterval   = 2.6
-    var enemyBulletSpeed:   CGFloat        = 145
+    var rangedShotInterval: TimeInterval   = 3
+    var enemyBulletSpeed:   CGFloat        = 120
     var meleeCooldown:      TimeInterval   = 2.0
     var coinsPerKill:       Int            = 1
     var enemyHealth:        Int            = 1
