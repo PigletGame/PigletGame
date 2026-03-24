@@ -172,10 +172,10 @@ struct GameOverView: View {
                     HStack(spacing: 16) {
                         PigletButton(
                             size: .medium,
-                            text: "Return to Menu",
+                            text: "Back to Menu",
                             icon: "arrowshape.turn.up.backward.fill"
                         ) {
-                            saveProgressIfNeeded() // 🔥 salva aqui
+                            saveProgressIfNeeded()
                             dismiss?()
                         }
 
