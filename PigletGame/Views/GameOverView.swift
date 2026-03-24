@@ -13,7 +13,7 @@ struct GameOverView: View {
     private let finalKills: Int
     private let finalTime: Int
     private let dismiss: DismissAction?
-    private let onRestart: (() -> Void)?
+    private let playAgainAction: (() -> Void)?
 
     @State var returnMenu: Bool = false
     
@@ -28,14 +28,14 @@ struct GameOverView: View {
         kills: Int,
         time: Int,
         dismiss: DismissAction? = nil,
-        onRestart: (() -> Void)? = nil
+        playAgainAction: (() -> Void)? = nil
     ) {
         self.finalCoins = coins
         self.finalKills = kills
         self.finalTime = time
         self.dismiss = dismiss
-        self.onRestart = onRestart
-    
+        self.playAgainAction = playAgainAction
+
         GameDataStore.shared.recordRun(
             collectedCoins: finalCoins,
             kills: finalKills
@@ -142,11 +142,7 @@ struct GameOverView: View {
                             text: "Return to Menu",
                             icon: "arrowshape.turn.up.backward.fill"
                         ) {
-                            if let dismiss = dismiss {
-                                dismiss()
-                            } else {
-                                returnMenu = true
-                            }
+                            dismiss?()
                         }
 
                         PigletButton(
@@ -155,7 +151,7 @@ struct GameOverView: View {
                             icon: "poweroutlet.type.a.fill",
                             color: .yellow
                         ) {
-                            onRestart?()
+                            playAgainAction?()
                         }
                     }
                 }
@@ -166,9 +162,6 @@ struct GameOverView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .navigationDestination(isPresented: $returnMenu) {
-            MainMenu()
-        }
     }
     
     private func animateEntrance() {

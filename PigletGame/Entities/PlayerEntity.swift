@@ -47,10 +47,7 @@ class PlayerEntity: GKEntity {
 
     func flashDamage(onComplete: @escaping () -> Void) {
         if let visual = VisualComponent.from(self) {
-            let sequence = SKAction.repeat(SKAction.run { [weak visual] in
-                visual?.flash(color: .red, duration: 0.15)
-            }, count: 6)
-            visual.node.run(sequence) {
+            visual.blink(colors: [.red, .white], duration: 1.0) {
                 onComplete()
             }
         } else {

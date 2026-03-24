@@ -34,7 +34,7 @@ struct PauseView: View {
                     .frame(height: 95)
                     .overlay(alignment: .top) {
                         HStack {
-                            PigletButton(size: .medium, text: "Exit", icon: "rectangle.portrait.and.arrow.right") {
+                            PigletButton(size: .medium, text: "Give up", icon: "rectangle.portrait.and.arrow.right") {
                                 AudioService.shared.stop("inGameCombat.mp3")
                                 withAnimation(.spring(response: 0.5, dampingFraction: 0.82)) {
                                     isVisible = false

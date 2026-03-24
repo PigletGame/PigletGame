@@ -58,11 +58,11 @@ struct GameView: View {
                     coins: stats.coins,
                     kills: stats.kills,
                     time: stats.time,
-                    dismiss: dismiss,
-                    onRestart: {
-                        restartGame()
+                    dismiss: dismiss) {
+                        if let currentScene {
+                            setupScene(size: currentScene.size)
+                        }
                     }
-                )
             }
 
             if postOnboardingStep != .none {
@@ -73,6 +73,10 @@ struct GameView: View {
     }
 
     private func setupScene(size: CGSize) {
+        isGameOver = false
+        isPaused = false
+        finalStats = nil
+
         let scene: SKScene
         if initialSceneType == OnboardingScene.self {
             AudioService.shared.stop("menu.mp3")
