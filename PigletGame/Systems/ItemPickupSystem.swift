@@ -63,8 +63,11 @@ class ItemPickupSystem {
     // MARK: – Drop
 
     func dropLoot(at pos: CGPoint, multiplier: Int) {
-        guard let scene else { return }
-        let drops = LootComponent().roll()
+        guard let scene, let player else { return }
+
+        let currentLives = player.health.lives
+        let hasShield = player.shield.isActive
+        let drops = LootComponent().roll(currentLives: currentLives, hasShield: hasShield)
 
         for drop in drops {
             switch drop {
@@ -86,6 +89,30 @@ class ItemPickupSystem {
             }
         }
     }
+//    func dropLoot(at pos: CGPoint, multiplier: Int) {
+//        guard let scene else { return }
+//        let drops = LootComponent().roll()
+//
+//        for drop in drops {
+//            switch drop {
+//            case .coin:
+//                for _ in 1...multiplier {
+//                    scene.entityManager.addEntity(CoinEntity(at: pos))
+//                }
+//            case .extraCoin:
+//                let offset = CGPoint(x: CGFloat.random(in: -15...15),
+//                                     y: CGFloat.random(in: -15...15))
+//                scene.entityManager.addEntity(CoinEntity(at: CGPoint(x: pos.x + offset.x,
+//                                                       y: pos.y + offset.y)))
+//            case .shield:
+//                scene.entityManager.addEntity(PowerUpEntity(kind: .shield, at: pos))
+//            case .life:
+//                scene.entityManager.addEntity(PowerUpEntity(kind: .life, at: pos))
+//            case .nothing:
+//                break
+//            }
+//        }
+//    }
 
     // MARK: – Helpers
 

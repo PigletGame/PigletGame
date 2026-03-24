@@ -5,8 +5,9 @@ class HUDNode: SKNode {
     private var killLabel:  SKLabelNode!
 //    private var scoreLabel: SKLabelNode!
     private var coinLabel:  SKLabelNode!
-    private var statusNodes: [SKSpriteNode] = []
-    
+//    private var statusNodes: [SKSpriteNode] = []
+    private var statusNodes: [SKNode] = []
+
     private var killIcon:  SKSpriteNode!
 //    private var scoreIcon: SKSpriteNode!
     private var coinIcon:  SKSpriteNode!
@@ -144,19 +145,37 @@ class HUDNode: SKNode {
         let iconSpacing: CGFloat = 22
         let startX = -sceneSize.width / 2 + margin + 10
         let topY = sceneSize.height / 2 - margin - 5
+        let maxVisible = 3
 
-        for i in 0..<3 {
+        for i in 0..<maxVisible {
             let textureName = i < lives ? "HUD/Heart" : "HUD/HeartEmpty"
             let h = makeStatusIcon(named: textureName)
-            h.position    = CGPoint(x: startX + CGFloat(i) * iconSpacing, y: topY)
+            h.position = CGPoint(x: startX + CGFloat(i) * iconSpacing, y: topY)
             addChild(h)
             statusNodes.append(h)
         }
 
-        // Shield
+//        if lives > maxVisible {
+//            let extra = lives - maxVisible
+//            let extraLabel = SKLabelNode(fontNamed: StyleGuide.Typography.bold)
+//            extraLabel.text = "+\(extra)"
+//            extraLabel.fontSize = 13
+//            extraLabel.fontColor = SKColor(red: 1.0, green: 0.0, blue: 0.322, alpha: 1)
+//            extraLabel.horizontalAlignmentMode = .left
+//            extraLabel.verticalAlignmentMode = .center
+//            extraLabel.position = CGPoint(x: startX + CGFloat(maxVisible) * iconSpacing, y: topY)
+//            extraLabel.zPosition = 95
+//            addChild(extraLabel)
+//            statusNodes.append(extraLabel)
+//        }
+
         if hasShield {
+            let extraOffset: CGFloat = lives > maxVisible ? 28 : 0
             let shield = makeStatusIcon(named: "HUD/Shield")
-            shield.position    = CGPoint(x: startX + 3 * iconSpacing, y: topY)
+            shield.position = CGPoint(
+                x: startX + CGFloat(maxVisible) * iconSpacing + extraOffset,
+                y: topY
+            )
             addChild(shield)
             statusNodes.append(shield)
         }
