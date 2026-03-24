@@ -12,6 +12,7 @@ final class AudioService {
 
     private var players: [String: AVAudioPlayer] = [:]
     private var isMuted: Bool = false
+    private var pausedByMute: Set<String> = []
     private let queue = DispatchQueue(label: "AudioServiceQueue")
 
     private init() {
@@ -91,10 +92,18 @@ final class AudioService {
         queue.async {
             self.isMuted = muted
             if muted {
-                for player in self.players.values {
-                    player.stop()
+                self.pausedByMute.removeAll()
+                for (name, player) in self.players {
+                    if player.isPlaying {
+                        player.pause()
+                        self.pausedByMute.insert(name)
+                    }
                 }
-                self.players.removeAll()
+            } else {
+                for name in self.pausedByMute {
+                    self.players[name]?.play()
+                }
+                self.pausedByMute.removeAll()
             }
         }
     }
@@ -106,6 +115,6 @@ final class AudioService {
 
     /// Retorna o estado atual do mute
     var isAudioMuted: Bool {
-        return isMuted
+        queue.sync { isMuted }
     }
 }

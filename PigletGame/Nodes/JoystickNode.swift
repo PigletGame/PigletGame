@@ -21,15 +21,11 @@ class JoystickNode: SKNode {
 
     let baseShape: SKShapeNode
     let thumbShape: SKShapeNode
-    private let touchArea: SKShapeNode
+    private let iconNode: SKSpriteNode
 
     // MARK: - Public state
 
     private(set) var movement: CGPoint = .zero
-
-    // MARK: - Private touch state
-
-    private var trackedTouch: UITouch?
 
     // MARK: - Init
 
@@ -47,52 +43,43 @@ class JoystickNode: SKNode {
         thumbShape.fillColor   = UIColor.white.withAlphaComponent(0.45)
         thumbShape.strokeColor = UIColor.white.withAlphaComponent(0.75)
         thumbShape.lineWidth   = 2
-        
-        // Large invisible touch area to catch nearby touches
-        touchArea = SKShapeNode(circleOfRadius: baseRadius * 3)
-        touchArea.fillColor = .clear
-        touchArea.strokeColor = .clear
+
+        let iconName = side == .left ? "leftJoystick" : "rightJoystick"
+        iconNode = SKSpriteNode(imageNamed: iconName)
+        iconNode.size = CGSize(width: thumbRadius * 1.5, height: thumbRadius * 1.5)
+        iconNode.zPosition = 1
+        iconNode.color = .darkGray
+        iconNode.colorBlendFactor = 0.45
 
         super.init()
 
-        isUserInteractionEnabled = true
-        addChild(touchArea)
+        isUserInteractionEnabled = false
         addChild(baseShape)
         addChild(thumbShape)
+        thumbShape.addChild(iconNode)
+
+        isHidden = true
     }
 
     required init?(coder aDecoder: NSCoder) { fatalError() }
 
-    // MARK: - Touch handling
+    // MARK: - Public control
 
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard trackedTouch == nil,
-              let touch = touches.first else { return }
-
-        // Since isUserInteractionEnabled is true and this node is correctly 
-        // positioned on its side, SpriteKit's hit testing already ensures 
-        // the touch is intended for this joystick.
-        trackedTouch = touch
-        let loc = touch.location(in: self)
-        updateThumb(to: loc)
-    }
-
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = trackedTouch, touches.contains(touch) else { return }
-
-        // Use position relative to joystick center so thumb follows the finger
-        let loc = touch.location(in: self)
-        updateThumb(to: loc)
-    }
-
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = trackedTouch, touches.contains(touch) else { return }
-        trackedTouch = nil
+    func activate(at point: CGPoint) {
+        position = point
+        isHidden = false
         reset()
     }
 
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        touchesEnded(touches, with: event)
+    func updateTouch(at pointInParent: CGPoint) {
+        let localPoint = CGPoint(x: pointInParent.x - position.x,
+                                 y: pointInParent.y - position.y)
+        updateThumb(to: localPoint)
+    }
+
+    func deactivate() {
+        reset()
+        isHidden = true
     }
 
     // MARK: - Internal helpers

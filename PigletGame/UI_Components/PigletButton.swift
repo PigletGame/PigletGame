@@ -9,14 +9,15 @@ import SwiftUI
 
 struct PigletButton: View {
     enum ButtonSize {
-        case icon, small, medium, large, largeTwoLine, smallWide
-        
+        case icon, small, medium, large, largeTwoLine, smallWide, extraLarge
+
         var width: Double {
             switch self {
             case .icon: return 60
             case .small: return 127
             case .medium: return 157
             case .large: return 270
+            case .extraLarge: return 330
             case .largeTwoLine: return 311
             case .smallWide: return 200
             }
@@ -24,9 +25,10 @@ struct PigletButton: View {
         var height: Double {
             switch self {
             case .icon: return 44
-            case .small, .medium, .large: return 64
+            case .small, .medium, .large, .extraLarge: return 64
             case .largeTwoLine: return 0
             case .smallWide: return 40
+
             }
         }
         
@@ -34,21 +36,23 @@ struct PigletButton: View {
             switch self {
             case .icon: return 0
             case .small, .medium, .smallWide: return 17
-            case .large, .largeTwoLine: return 24
-                
+            case .large, .largeTwoLine, .extraLarge: return 24
+
             }
         }
     }
     
     enum ColorStyle {
-        case red, yellow, disabledButton
-        
+        case red, yellow, orange, disabledButton
+
         var background: Color {
             switch self {
             case .red:
                 StyleGuide.Colors.darkRed
             case .yellow:
                 StyleGuide.Colors.yellow
+            case .orange:
+                StyleGuide.Colors.orange
             case .disabledButton:
                 StyleGuide.Colors.disabledButton
             }
@@ -58,7 +62,7 @@ struct PigletButton: View {
             switch self {
             case .red:
                 Color.white
-            case .yellow:
+            case .yellow, .orange:
                 Color.black
             case .disabledButton:
                 Color.white
@@ -69,6 +73,7 @@ struct PigletButton: View {
     var size: ButtonSize = .large
     var text: String
     var icon: String
+    var isAssetIcon: Bool = false
     var color: ColorStyle = .red
     var price: Int? = nil
     var onTap: () -> Void
@@ -104,11 +109,10 @@ struct PigletButton: View {
     
     @ViewBuilder
     private var content: some View {
-        if size == .large || size == .largeTwoLine {
+        if size == .large || size == .largeTwoLine || size == .extraLarge {
             VStack(spacing: 4) {
                 HStack(spacing: 6) {
-                    Image(systemName: icon)
-                        .font(.system(size: 15, weight: .black))
+                    iconView(fontSize: 15)
                     Text(text)
                         .font(.custom("Geist-Black", size: size.fontSize))
                 }
@@ -123,21 +127,33 @@ struct PigletButton: View {
             }
         } else if size == .smallWide {
             HStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.system(size: 15, weight: .black))
+                iconView(fontSize: 15)
                 Text(text)
                     .font(.custom("Geist-Bold", size: size.fontSize))
             }
         } else {
             VStack(spacing: 6) {
-                Image(systemName: icon)
-                    .font(.system(size: 15, weight: .black))
+                iconView(fontSize: 15)
                 
                 if size != .icon {
                     Text(text)
                         .font(.custom("Geist-Bold", size: size.fontSize))
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private func iconView(fontSize: CGFloat) -> some View {
+        if isAssetIcon {
+            Image(icon)
+                .resizable()
+                .renderingMode(.template)
+                .scaledToFit()
+                .frame(width: fontSize, height: fontSize)
+        } else {
+            Image(systemName: icon)
+                .font(.system(size: fontSize, weight: .black))
         }
     }
     
@@ -154,13 +170,5 @@ struct PigletButton: View {
 }
 
 #Preview {
-    
-    PigletButton(
-        size: .medium,
-        text: "Play Again",
-        icon: "poweroutlet.type.a.fill",
-        color: .yellow
-    ) {
-        // showGame = true
-    }
+    GameOverView(coins: 0, kills: 0, time: 0)
 }

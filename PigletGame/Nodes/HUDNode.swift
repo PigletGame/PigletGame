@@ -3,12 +3,12 @@ import SpriteKit
 class HUDNode: SKNode {
 
     private var killLabel:  SKLabelNode!
-    private var scoreLabel: SKLabelNode!
+//    private var scoreLabel: SKLabelNode!
     private var coinLabel:  SKLabelNode!
     private var statusNodes: [SKSpriteNode] = []
     
     private var killIcon:  SKSpriteNode!
-    private var scoreIcon: SKSpriteNode!
+//    private var scoreIcon: SKSpriteNode!
     private var coinIcon:  SKSpriteNode!
     private var pauseButton: SKSpriteNode!
 
@@ -46,25 +46,14 @@ class HUDNode: SKNode {
         killLabel.position = CGPoint(x: killIcon.position.x + 24, y: topY - lineSpacing)
         addChild(killLabel)
 
-        // --- Right Side ---
-        // Score Row (Icon on Right)
-        scoreIcon = makeIcon(named: "PLACEHOLDER/arrow") // Placeholder as requested
-        scoreIcon.anchorPoint = CGPoint(x: 1, y: 0.5)
-        scoreIcon.position = CGPoint(x: rightX, y: topY)
-        addChild(scoreIcon)
-        
-        scoreLabel = makeValueLabel(align: .right)
-        scoreLabel.position = CGPoint(x: scoreIcon.position.x - 24, y: topY)
-        addChild(scoreLabel)
-        
         // Coin Row (Icon on Right)
         coinIcon = makeIcon(named: "HUD/Coin")
         coinIcon.anchorPoint = CGPoint(x: 1, y: 0.5)
-        coinIcon.position = CGPoint(x: rightX, y: topY - lineSpacing)
+        coinIcon.position = CGPoint(x: rightX, y: topY)
         addChild(coinIcon)
         
         coinLabel = makeValueLabel(align: .right)
-        coinLabel.position = CGPoint(x: coinIcon.position.x - 24, y: topY - lineSpacing)
+        coinLabel.position = CGPoint(x: coinIcon.position.x - 24, y: topY)
         addChild(coinLabel)
         
         // --- Pause Button ---
@@ -135,10 +124,7 @@ class HUDNode: SKNode {
     func update(score: Int, kills: Int, coins: Int, lives: Int, hasShield: Bool) {
         killLabel.text = "\(kills)"
         updateShadow(for: killLabel)
-        
-        scoreLabel.text = "\(score)"
-        updateShadow(for: scoreLabel)
-        
+
         coinLabel.text = "\(coins)"
         updateShadow(for: coinLabel)
         
@@ -167,7 +153,7 @@ class HUDNode: SKNode {
             statusNodes.append(h)
         }
 
-        // 🛡 Shield
+        // Shield
         if hasShield {
             let shield = makeStatusIcon(named: "HUD/Shield")
             shield.position    = CGPoint(x: startX + 3 * iconSpacing, y: topY)
