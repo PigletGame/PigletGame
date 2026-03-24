@@ -29,7 +29,7 @@ class GameScene: SKScene {
     private var coinCount:   Int = 0
     private var elapsedTime: TimeInterval = 0
     private var lastUpdateTime: TimeInterval = 0
-    private var scoreAccum:  TimeInterval = 0
+//    private var scoreAccum:  TimeInterval = 0
     private var isGameOver   = false
     private var isPausedManually = false {
         didSet {
@@ -235,12 +235,12 @@ class GameScene: SKScene {
             cameraNode.position = posComponent.position
         }
 
-        scoreAccum += dt
-        if scoreAccum >= 1.0 {
-            score      += 10
-            scoreAccum -= 1.0
-            refreshHUD()
-        }
+//        scoreAccum += dt
+//        if scoreAccum >= 1.0 {
+//            score      += 10
+//            scoreAccum -= 1.0
+//            refreshHUD()
+//        }
 
         // IA dos inimigos
         combatSystem.updateEnemies(
@@ -384,3 +384,7 @@ class GameScene: SKScene {
         ]))
     }
 }
+
+//#Preview {
+//    GameScene()
+//}
