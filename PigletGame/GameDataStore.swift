@@ -136,7 +136,6 @@ final class GameDataStore {
         )
 
         if let existing = try? context.fetch(existingDescriptor).first {
-            print(existing)
             return existing.isPurchased ? .alreadyOwned : .unavailable
         }
 
@@ -155,8 +154,6 @@ final class GameDataStore {
         saveContext(context)
 
         GameCenterManager.shared.submitScore(index + 1)
-
-        print("aa")
 
         return .purchased(remainingCoins: progress.totalCoins)
     }
