@@ -335,7 +335,6 @@ class GameScene: SKScene {
     // MARK: – Update Loop
 
     override func update(_ currentTime: TimeInterval) {
-        print(self.entityManager.entities.count)
         if isResumingGame { lastUpdateTime = currentTime; isResumingGame = false }
         guard !isGameOver && !isPausedManually else { return }
 
