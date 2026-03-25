@@ -6,31 +6,17 @@ class OnboardingScene: SKScene {
     var onComplete: (() -> Void)?
 
     static let seenKey = "hasSeenOnboarding"
-    let linesPerPage = 4
 
-    private let storyLines: [String] = [
-        "The pig village was calm. \nCheerful and peaceful, as it had always been.",
-        "Amid laughter, the days went by.",
-        "Until the peace vanished.",
-        "They came from afar.",
-        "Tigers.",
-        "They wanted money. A lot of money.",
-        "They were never satisfied. \nThey wanted more, more, and more.",
-        "And when the coffers ran dry… the destruction began.",
-        "The village fell and the pigs fled.",
-        "All of them.",
-        "All except one.",
-        "As fear spread chaos, one remained.",
-        "That place was everything he had and \neverything he were.",
-        "Now, alone, the objective is clear:",
-        "Drive out the usurpers and \nrestore your village to its former glory."
-    ]
+    private let comicNames = (1...8).map { "comic\($0)" }
+    private var currentIndex = 0
+    private let carouselNode = SKNode()
 
-    private var pageTexts: [String] = []
-    private var currentPageIndex = 0
+    private var dragTouch: UITouch?
+    private var dragStartLocation: CGPoint = .zero
+    private var dragStartCarouselX: CGFloat = 0
+    private var isDragging = false
 
-    private var storyLabel: SKLabelNode?
-    private var hintLabel: SKLabelNode?
+    private var swipeHintBox: SKNode?
     private var playButton: SKNode?
 
     override func didMove(to view: SKView) {
@@ -46,112 +32,128 @@ class OnboardingScene: SKScene {
 
     private func buildScene() {
         removeAllChildren()
-        backgroundColor = UIColor(StyleGuide.Colors.red)
+        backgroundColor = .black
 
-        currentPageIndex = 0
-        pageTexts = buildPages(from: storyLines, linesPerPage: linesPerPage)
-        setupPageUI()
-        updatePage(animated: false)
+        currentIndex = 0
+        addChild(carouselNode)
+        setupCarouselSlides()
+        setupSwipeHintBox()
+        setupPlayButton()
+        updateUIForCurrentIndex(animated: false)
     }
 
-    private func buildPages(from lines: [String], linesPerPage: Int) -> [String] {
-        guard linesPerPage > 0 else { return [lines.joined(separator: "\n")] }
-        var pages: [String] = []
-        var index = 0
+    private func setupSwipeHintBox() {
+        swipeHintBox?.removeFromParent()
 
-        while index < lines.count {
-            let end = min(index + linesPerPage, lines.count)
-            pages.append(lines[index..<end].joined(separator: "\n"))
-            index = end
+        let box = SKNode()
+        box.position = CGPoint(x: size.width / 2, y: size.height / 2)
+        box.zPosition = 100
+
+        let boxSize = CGSize(width: 250, height: 58)
+        let background = SKShapeNode(rectOf: boxSize, cornerRadius: 12)
+        background.fillColor = UIColor(StyleGuide.Colors.darkRed)
+        background.strokeColor = .black
+        background.lineWidth = 2
+
+        let label = SKLabelNode(fontNamed: "Geist-Black")
+        label.text = "Swipe to continue"
+        label.fontSize = max(14, min(18, size.height * 0.03))
+        label.fontColor = .white
+        label.horizontalAlignmentMode = .center
+        label.verticalAlignmentMode = .center
+
+        box.addChild(background)
+        box.addChild(label)
+        addChild(box)
+        swipeHintBox = box
+
+        box.removeAllActions()
+        box.run(SKAction.sequence([
+            SKAction.wait(forDuration: 3.0),
+            SKAction.fadeOut(withDuration: 0.2),
+            SKAction.removeFromParent()
+        ]))
+    }
+
+    private func setupCarouselSlides() {
+        carouselNode.removeAllChildren()
+
+        for (index, imageName) in comicNames.enumerated() {
+            let slide = makeSlide(imageNamed: imageName)
+            slide.position = CGPoint(
+                x: size.width * 0.5 + CGFloat(index) * size.width,
+                y: size.height * 0.5
+            )
+            carouselNode.addChild(slide)
         }
-        return pages
     }
 
-    private func setupPageUI() {
-        let text = SKLabelNode(fontNamed: StyleGuide.Typography.medium)
-        text.numberOfLines = 0
-        text.preferredMaxLayoutWidth = size.width * 0.84
-        text.fontSize = max(22, min(28, size.height * 0.06))
-        text.fontColor = .white
-        text.horizontalAlignmentMode = .center
-        text.verticalAlignmentMode = .center
-        text.position = CGPoint(x: size.width / 2, y: size.height * 0.56)
-        addChild(text)
-        storyLabel = text
+    private func makeSlide(imageNamed imageName: String) -> SKNode {
+        let slidePadding: CGFloat = 8
+        let contentSize = CGSize(width: size.width - (slidePadding * 2),
+                                 height: size.height - (slidePadding * 2))
 
-        let hint = SKLabelNode(fontNamed: StyleGuide.Typography.medium)
-        hint.text = "Tap to continue"
-        hint.fontSize = max(15, min(20, size.height * 0.04))
-        hint.fontColor = SKColor(white: 0.68, alpha: 1)
-        hint.horizontalAlignmentMode = .center
-        hint.verticalAlignmentMode = .center
-        hint.position = CGPoint(x: size.width / 2, y: size.height * 0.15)
-        addChild(hint)
-        hintLabel = hint
-    }
+        let sprite = SKSpriteNode(imageNamed: imageName)
+        sprite.texture?.filteringMode = .linear
 
-    private func updatePage(animated: Bool) {
-        guard !pageTexts.isEmpty, currentPageIndex >= 0, currentPageIndex < pageTexts.count else { return }
-
-        let changeText: () -> Void = { [weak self] in
-            guard let self else { return }
-            applyCenteredStoryText(pageTexts[currentPageIndex])
-        }
-
-        if animated, let storyLabel {
-            let out = SKAction.fadeOut(withDuration: 0.15)
-            let set = SKAction.run(changeText)
-            let `in` = SKAction.fadeIn(withDuration: 0.15)
-            storyLabel.run(SKAction.sequence([out, set, `in`]))
+        if let textureSize = sprite.texture?.size(), textureSize.width > 0, textureSize.height > 0 {
+            let fitScale = min(contentSize.width / textureSize.width,
+                               contentSize.height / textureSize.height)
+            sprite.size = CGSize(width: textureSize.width * fitScale,
+                                 height: textureSize.height * fitScale)
         } else {
-            changeText()
+            sprite.size = contentSize
         }
 
-        let isLastPage = currentPageIndex == pageTexts.count - 1
-        hintLabel?.isHidden = isLastPage
+        let mask = SKShapeNode(rectOf: contentSize)
+        mask.fillColor = .white
+        mask.strokeColor = .clear
 
-        if isLastPage {
-            showPlayButtonIfNeeded()
-        } else {
-            playButton?.removeFromParent()
-            playButton = nil
-        }
+        let cropNode = SKCropNode()
+        cropNode.maskNode = mask
+        cropNode.addChild(sprite)
+
+        return cropNode
     }
 
-    private func applyCenteredStoryText(_ text: String) {
-        guard let storyLabel else { return }
+    private func setupPlayButton() {
+        playButton?.removeFromParent()
 
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.alignment = .center
-        paragraphStyle.lineBreakMode = .byWordWrapping
-
-        let fontSize = storyLabel.fontSize
-        let fontName = storyLabel.fontName ?? StyleGuide.Typography.medium
-        let font = UIFont(name: fontName, size: fontSize) ?? UIFont.systemFont(ofSize: fontSize)
-
-        let attributed = NSAttributedString(
-            string: text,
-            attributes: [
-                .font: font,
-                .foregroundColor: UIColor.white,
-                .paragraphStyle: paragraphStyle
-            ]
-        )
-
-        storyLabel.attributedText = attributed
-    }
-
-    private func showPlayButtonIfNeeded() {
-        guard playButton == nil else { return }
+        let buttonSize = CGSize(width: 270, height: 64)
+        let rightMargin: CGFloat = 24
+        let bottomMargin: CGFloat = 24
 
         let button = makePlayButton()
         button.alpha = 0
-        button.position = CGPoint(x: size.width / 2, y: size.height * 0.20)
+        button.position = CGPoint(
+            x: size.width - (buttonSize.width / 2) - rightMargin,
+            y: (buttonSize.height / 2) + bottomMargin
+        )
         addChild(button)
         playButton = button
+    }
 
-        let fadeIn = SKAction.fadeIn(withDuration: 0.3)
-        button.run(fadeIn)
+    private func updateUIForCurrentIndex(animated: Bool) {
+        let targetX = -CGFloat(currentIndex) * size.width
+        carouselNode.removeAllActions()
+
+        if animated {
+            let move = SKAction.moveTo(x: targetX, duration: 0.22)
+            move.timingMode = .easeOut
+            carouselNode.run(move)
+        } else {
+            carouselNode.position.x = targetX
+        }
+
+        let isLastSlide = currentIndex == comicNames.count - 1
+
+        guard let playButton else { return }
+        playButton.removeAllActions()
+        if isLastSlide {
+            playButton.run(.fadeAlpha(to: 1, duration: 0.2))
+        } else {
+            playButton.run(.fadeAlpha(to: 0, duration: 0.2))
+        }
     }
 
     private func makePlayButton() -> SKNode {
@@ -173,14 +175,6 @@ class OnboardingScene: SKScene {
         bg.lineWidth = 3
         bg.name = "playButton"
 
-        if let iconTexture = makeSFSymbolTexture(named: "", pointSize: 15, weight: .black, tintColor: .black) {
-            let icon = SKSpriteNode(texture: iconTexture)
-            icon.position = CGPoint(x: -50, y: 0)
-            icon.zPosition = 1
-            icon.name = "playButton"
-            container.addChild(icon)
-        }
-
         let label = SKLabelNode(fontNamed: "Geist-Black")
         label.text = "Play"
         label.fontSize = 24
@@ -196,34 +190,95 @@ class OnboardingScene: SKScene {
         return container
     }
 
-    private func makeSFSymbolTexture(named symbolName: String,
-                                     pointSize: CGFloat,
-                                     weight: UIImage.SymbolWeight,
-                                     tintColor: UIColor) -> SKTexture? {
-        let config = UIImage.SymbolConfiguration(pointSize: pointSize, weight: weight)
-        guard let image = UIImage(systemName: symbolName, withConfiguration: config)?
-            .withTintColor(tintColor, renderingMode: .alwaysOriginal) else {
-            return nil
+    private func nearestIndex(for xPosition: CGFloat) -> Int {
+        let rawIndex = Int(round(-xPosition / size.width))
+        return max(0, min(comicNames.count - 1, rawIndex))
+    }
+
+    private func clampedCarouselX(_ xPosition: CGFloat) -> CGFloat {
+        let minX = -CGFloat(comicNames.count - 1) * size.width
+        let maxX: CGFloat = 0
+
+        if xPosition > maxX {
+            return maxX + (xPosition - maxX) * 0.25
         }
 
-        let texture = SKTexture(image: image)
-        texture.filteringMode = .nearest
-        return texture
+        if xPosition < minX {
+            return minX + (xPosition - minX) * 0.25
+        }
+
+        return xPosition
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
 
-        for node in nodes(at: location) where node.name == "playButton" {
+        hideSwipeHintBox()
+
+        if currentIndex == comicNames.count - 1,
+           nodes(at: location).contains(where: { $0.name == "playButton" }) {
             AudioService.shared.play("bumbo.mp3")
             onComplete?()
             return
         }
 
-        if currentPageIndex < pageTexts.count - 1 {
-            currentPageIndex += 1
-            updatePage(animated: true)
+        dragTouch = touch
+        dragStartLocation = location
+        dragStartCarouselX = carouselNode.position.x
+        isDragging = false
+    }
+
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = dragTouch, touches.contains(touch) else { return }
+
+        hideSwipeHintBox()
+
+        let location = touch.location(in: self)
+        let deltaX = location.x - dragStartLocation.x
+        if abs(deltaX) > 3 { isDragging = true }
+
+        carouselNode.removeAllActions()
+        carouselNode.position.x = clampedCarouselX(dragStartCarouselX + deltaX)
+    }
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = dragTouch, touches.contains(touch) else { return }
+
+        let location = touch.location(in: self)
+        let deltaX = location.x - dragStartLocation.x
+
+        if abs(deltaX) > size.width * 0.12 {
+            if deltaX < 0 {
+                currentIndex = min(currentIndex + 1, comicNames.count - 1)
+            } else {
+                currentIndex = max(currentIndex - 1, 0)
+            }
+        } else {
+            currentIndex = nearestIndex(for: carouselNode.position.x)
         }
+
+        updateUIForCurrentIndex(animated: true)
+
+        dragTouch = nil
+        isDragging = false
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = dragTouch, touches.contains(touch) else { return }
+        updateUIForCurrentIndex(animated: true)
+        dragTouch = nil
+        isDragging = false
+    }
+
+    private func hideSwipeHintBox() {
+        guard let swipeHintBox else { return }
+        self.swipeHintBox = nil
+
+        swipeHintBox.removeAllActions()
+        swipeHintBox.run(SKAction.sequence([
+            SKAction.fadeOut(withDuration: 0.15),
+            SKAction.removeFromParent()
+        ]))
     }
 }
