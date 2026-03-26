@@ -1,22 +1,23 @@
 import SpriteKit
+import SwiftUI
 
 class HUDNode: SKNode {
 
-    private var killLabel:  SKLabelNode!
-//    private var scoreLabel: SKLabelNode!
+//    private var killLabel:  SKLabelNode!
     private var coinLabel:  SKLabelNode!
-//    private var statusNodes: [SKSpriteNode] = []
+    private var houseLabel: SKLabelNode!
     private var statusNodes: [SKNode] = []
 
-    private var killIcon:  SKSpriteNode!
-//    private var scoreIcon: SKSpriteNode!
+//    private var killIcon:  SKSpriteNode!
     private var coinIcon:  SKSpriteNode!
+    private var houseIcon: SKSpriteNode!
     private var pauseButton: SKSpriteNode!
 
     private let sceneSize: CGSize
-    private let margin: CGFloat = 20
-    private let lineSpacing: CGFloat = 28
-    
+    private let margin: CGFloat = 32
+    private let topOffset: CGFloat = 10
+    private let lineSpacing: CGFloat = 40
+
     var onPausePressed: (() -> Void)?
 
     init(sceneSize: CGSize) {
@@ -32,58 +33,75 @@ class HUDNode: SKNode {
     // MARK: – Build
 
     private func buildHUD() {
-        let topY = sceneSize.height / 2 - margin - 5
+        let topY = sceneSize.height / 2 - margin - topOffset
         let rightX = sceneSize.width / 2 - margin
         let leftX = -sceneSize.width / 2 + margin
-        
-        // --- Left Side ---
-        // Kills Row (Icon on Left)
-        killIcon = makeIcon(named: "Tiger/Standby")
-        killIcon.anchorPoint = CGPoint(x: 0, y: 0.5)
-        killIcon.position = CGPoint(x: leftX, y: topY - lineSpacing)
-        addChild(killIcon)
-        
-        killLabel = makeValueLabel(align: .left)
-        killLabel.position = CGPoint(x: killIcon.position.x + 24, y: topY - lineSpacing)
-        addChild(killLabel)
 
-        // Coin Row (Icon on Right)
+        // --- LEFT SIDE ---
+//         Kills
+//        killIcon = makeIcon(named: "Tiger/Standby")
+//        killIcon.anchorPoint = CGPoint(x: 0, y: 0.5)
+//        killIcon.position = CGPoint(x: leftX, y: topY - lineSpacing)
+//        addChild(killIcon)
+
+//        killLabel = makeValueLabel(align: .left)
+//        killLabel.position = CGPoint(x: killIcon.position.x + 24, y: topY - lineSpacing)
+//        addChild(killLabel)
+
+        // --- RIGHT SIDE ---
+        // Coins
         coinIcon = makeIcon(named: "HUD/Coin")
         coinIcon.anchorPoint = CGPoint(x: 1, y: 0.5)
         coinIcon.position = CGPoint(x: rightX, y: topY)
         addChild(coinIcon)
-        
+
         coinLabel = makeValueLabel(align: .right)
-        coinLabel.position = CGPoint(x: coinIcon.position.x - 24, y: topY)
+        coinLabel.position = CGPoint(x: coinIcon.position.x - 40, y: topY)
         addChild(coinLabel)
-        
+
+        // Houses (novo)
+        houseIcon = makeIcon(named: "house")
+        houseIcon.anchorPoint = CGPoint(x: 1, y: 0.5)
+        houseIcon.position = CGPoint(x: rightX, y: topY - lineSpacing)
+        addChild(houseIcon)
+
+        houseLabel = makeValueLabel(align: .right)
+        houseLabel.position = CGPoint(x: houseIcon.position.x - 40, y: topY - lineSpacing)
+        addChild(houseLabel)
+
         // --- Pause Button ---
-        pauseButton = SKSpriteNode(color: .white.withAlphaComponent(0.2), size: CGSize(width: 34, height: 34))
+        pauseButton = SKSpriteNode(
+            color: .white.withAlphaComponent(0.2),
+            size: CGSize(width: 36, height: 36)
+        )
         pauseButton.position = CGPoint(x: rightX - 5, y: topY - lineSpacing * 2.5)
         pauseButton.name = "pauseButton"
         pauseButton.zPosition = 100
-        
-        // Add a simple "||" label for the pause icon since we might not have a texture
+
         let pauseLabel = SKLabelNode(text: "||")
         pauseLabel.fontName = StyleGuide.Typography.heavy
         pauseLabel.fontSize = 18
         pauseLabel.verticalAlignmentMode = .center
         pauseLabel.horizontalAlignmentMode = .center
         pauseLabel.fontColor = .white
+
         pauseButton.addChild(pauseLabel)
-        
         addChild(pauseButton)
     }
+
+    // MARK: – Touch
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
         let nodes = self.nodes(at: location)
-        
+
         if nodes.contains(where: { $0.name == "pauseButton" || $0.parent?.name == "pauseButton" }) {
             onPausePressed?()
         }
     }
+
+    // MARK: – Factory
 
     private func makeValueLabel(align: SKLabelHorizontalAlignmentMode) -> SKLabelNode {
         let lbl = SKLabelNode(fontNamed: StyleGuide.Typography.bold)
@@ -92,7 +110,7 @@ class HUDNode: SKNode {
         lbl.horizontalAlignmentMode = align
         lbl.verticalAlignmentMode   = .center
         lbl.zPosition = 95
-        
+
         let shadow = SKLabelNode(fontNamed: StyleGuide.Typography.bold)
         shadow.fontSize = lbl.fontSize
         shadow.fontColor = .black
@@ -101,8 +119,8 @@ class HUDNode: SKNode {
         shadow.verticalAlignmentMode = .center
         shadow.position = CGPoint(x: 1, y: -1)
         shadow.zPosition = -1
+
         lbl.addChild(shadow)
-        
         return lbl
     }
 
@@ -110,33 +128,40 @@ class HUDNode: SKNode {
         let node = SKSpriteNode(imageNamed: name)
         node.texture?.filteringMode = .nearest
         node.zPosition = 95
-        
-        let size: CGFloat = 18
+
+        let size: CGFloat = 32
         let texSize = node.texture?.size() ?? .zero
+
         if texSize.width > 0 {
             let ratio = size / max(texSize.width, texSize.height)
             node.size = CGSize(width: texSize.width * ratio, height: texSize.height * ratio)
         }
+
         return node
     }
 
     // MARK: – Update
 
-    func update(score: Int, kills: Int, coins: Int, lives: Int, hasShield: Bool) {
-        killLabel.text = "\(kills)"
-        updateShadow(for: killLabel)
+    func update(score: Int, kills: Int, coins: Int, lives: Int, hasShield: Bool, houses: Int) {
+//        killLabel.text = "\(kills)"
+//        updateShadow(for: killLabel)
 
         coinLabel.text = "\(coins)"
         updateShadow(for: coinLabel)
-        
+
+        houseLabel.text = "\(houses)"
+        updateShadow(for: houseLabel)
+
         rebuildStatusIcons(lives: lives, hasShield: hasShield)
     }
-    
+
     private func updateShadow(for label: SKLabelNode) {
         if let shadow = label.children.first as? SKLabelNode {
             shadow.text = label.text
         }
     }
+
+    // MARK: – Status Icons
 
     private func rebuildStatusIcons(lives: Int, hasShield: Bool) {
         statusNodes.forEach { $0.removeFromParent() }
@@ -144,7 +169,7 @@ class HUDNode: SKNode {
 
         let iconSpacing: CGFloat = 22
         let startX = -sceneSize.width / 2 + margin + 10
-        let topY = sceneSize.height / 2 - margin - 5
+        let topY = sceneSize.height / 2 - margin - topOffset
         let maxVisible = 3
 
         for i in 0..<maxVisible {
@@ -155,25 +180,10 @@ class HUDNode: SKNode {
             statusNodes.append(h)
         }
 
-//        if lives > maxVisible {
-//            let extra = lives - maxVisible
-//            let extraLabel = SKLabelNode(fontNamed: StyleGuide.Typography.bold)
-//            extraLabel.text = "+\(extra)"
-//            extraLabel.fontSize = 13
-//            extraLabel.fontColor = SKColor(red: 1.0, green: 0.0, blue: 0.322, alpha: 1)
-//            extraLabel.horizontalAlignmentMode = .left
-//            extraLabel.verticalAlignmentMode = .center
-//            extraLabel.position = CGPoint(x: startX + CGFloat(maxVisible) * iconSpacing, y: topY)
-//            extraLabel.zPosition = 95
-//            addChild(extraLabel)
-//            statusNodes.append(extraLabel)
-//        }
-
         if hasShield {
-            let extraOffset: CGFloat = lives > maxVisible ? 28 : 0
             let shield = makeStatusIcon(named: "HUD/Shield")
             shield.position = CGPoint(
-                x: startX + CGFloat(maxVisible) * iconSpacing + extraOffset,
+                x: startX + CGFloat(maxVisible) * iconSpacing,
                 y: topY
             )
             addChild(shield)
@@ -200,4 +210,8 @@ class HUDNode: SKNode {
 
         return node
     }
+}
+
+#Preview {
+    GameView()
 }

@@ -24,7 +24,8 @@ struct GameView: View {
     @State private var currentScene: SKScene?
     @State private var postOnboardingStep: PostOnboardingStep = .none
     @State private var shouldRunPostOnboardingTips = false
-    
+    @State private var housesOwned: Int = 10
+
     var initialSceneType: SKScene.Type = GameScene.self
 
     var body: some View {
