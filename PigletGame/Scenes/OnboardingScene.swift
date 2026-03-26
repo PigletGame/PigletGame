@@ -2,22 +2,26 @@ import SpriteKit
 import SwiftUI
 
 class OnboardingScene: SKScene {
+
+    // MARK: - State
+
+    private enum OnboardingState {
+        case narrative
+        case image
+    }
+
+    private var state: OnboardingState = .narrative
+
     var dismiss: DismissAction?
     var onComplete: (() -> Void)?
 
     static let seenKey = "hasSeenOnboarding"
 
-    private let comicNames = (1...8).map { "comic\($0)" }
-    private var currentIndex = 0
-    private let carouselNode = SKNode()
+    // MARK: - Private
 
-    private var dragTouch: UITouch?
-    private var dragStartLocation: CGPoint = .zero
-    private var dragStartCarouselX: CGFloat = 0
-    private var isDragging = false
-
-    private var swipeHintBox: SKNode?
     private var playButton: SKNode?
+
+    // MARK: - Lifecycle
 
     override func didMove(to view: SKView) {
         buildScene()
@@ -30,130 +34,159 @@ class OnboardingScene: SKScene {
         }
     }
 
+    // MARK: - Scene Builder
+
     private func buildScene() {
         removeAllChildren()
-        backgroundColor = .black
 
-        currentIndex = 0
-        addChild(carouselNode)
-        setupCarouselSlides()
-        setupSwipeHintBox()
-        setupPlayButton()
-        updateUIForCurrentIndex(animated: false)
+        switch state {
+        case .narrative:
+            setupNarrativeScene()
+
+        case .image:
+            setupImageScene()
+        }
     }
 
-    private func setupSwipeHintBox() {
-        swipeHintBox?.removeFromParent()
+    // MARK: - Scene 1 (Narrative)
 
-        let box = SKNode()
-        box.position = CGPoint(x: size.width / 2, y: size.height / 2)
-        box.zPosition = 100
+    private func setupNarrativeScene() {
+        backgroundColor = SKColor(red: 0.65, green: 0.01, blue: 0.01, alpha: 1)
 
-        let boxSize = CGSize(width: 250, height: 58)
-        let background = SKShapeNode(rectOf: boxSize, cornerRadius: 12)
-        background.fillColor = UIColor(StyleGuide.Colors.darkRed)
-        background.strokeColor = .black
-        background.lineWidth = 2
+        let texts = [
+            "THE TIGERS DESTROYED YOUR VILLAGE",
+            "THEY TOOK EVERYTHING",
+            "TAKE IT BACK"
+        ]
 
-        let label = SKLabelNode(fontNamed: "Geist-Black")
-        label.text = "Swipe to continue"
-        label.fontSize = max(14, min(18, size.height * 0.03))
-        label.fontColor = .white
-        label.horizontalAlignmentMode = .center
-        label.verticalAlignmentMode = .center
+        let startY = size.height * 0.7
+        let spacing: CGFloat = 60
 
-        box.addChild(background)
-        box.addChild(label)
-        addChild(box)
-        swipeHintBox = box
+        for (index, text) in texts.enumerated() {
+            let label = SKLabelNode(fontNamed: "AvenirNext-Heavy")
+            label.text = text
+            label.fontSize = 32
+            label.fontColor = .white
+            label.alpha = 0
 
-        box.removeAllActions()
-        box.run(SKAction.sequence([
-            SKAction.wait(forDuration: 3.0),
-            SKAction.fadeOut(withDuration: 0.2),
-            SKAction.removeFromParent()
+            label.horizontalAlignmentMode = .center
+            label.verticalAlignmentMode = .center
+
+            label.position = CGPoint(
+                x: size.width / 2,
+                y: startY - CGFloat(index) * spacing
+            )
+
+            addChild(label)
+
+            let delay = Double(index) * 1.2
+
+            let moveIn = SKAction.moveBy(x: 0, y: -10, duration: 0.25)
+            moveIn.timingMode = .easeOut
+
+            let appear = SKAction.group([
+                SKAction.fadeIn(withDuration: 0.2),
+                moveIn
+            ])
+
+            label.run(.sequence([
+                .wait(forDuration: delay),
+                appear
+            ]))
+        }
+
+        // Vai automaticamente pra próxima tela
+        let totalDelay = Double(texts.count) * 1.2 + 1.0
+
+        run(.sequence([
+            .wait(forDuration: totalDelay),
+            .run { [weak self] in
+                self?.goToImageScene()
+            }
         ]))
     }
 
-    private func setupCarouselSlides() {
-        carouselNode.removeAllChildren()
+    // MARK: - Scene 2 (Image + Play)
 
-        for (index, imageName) in comicNames.enumerated() {
-            let slide = makeSlide(imageNamed: imageName)
-            slide.position = CGPoint(
-                x: size.width * 0.5 + CGFloat(index) * size.width,
-                y: size.height * 0.5
-            )
-            carouselNode.addChild(slide)
-        }
+    private func setupImageScene() {
+        backgroundColor = .black
+
+        setupSingleSlide()
+        setupPlayButton()
     }
 
-    private func makeSlide(imageNamed imageName: String) -> SKNode {
-        let slidePadding: CGFloat = 8
-        let contentSize = CGSize(width: size.width - (slidePadding * 2),
-                                 height: size.height - (slidePadding * 2))
+    // MARK: - Transition
 
-        let sprite = SKSpriteNode(imageNamed: imageName)
+    private func goToImageScene() {
+        state = .image
+
+        let transition = SKTransition.fade(withDuration: 0.6)
+
+        let newScene = OnboardingScene(size: size)
+        newScene.scaleMode = scaleMode
+        newScene.state = .image
+        newScene.onComplete = onComplete
+
+        view?.presentScene(newScene, transition: transition)
+    }
+
+    // MARK: - Image
+
+    private func setupSingleSlide() {
+        let sprite = SKSpriteNode(imageNamed: "onboarding")
         sprite.texture?.filteringMode = .linear
 
-        if let textureSize = sprite.texture?.size(), textureSize.width > 0, textureSize.height > 0 {
-            let fitScale = min(contentSize.width / textureSize.width,
-                               contentSize.height / textureSize.height)
-            sprite.size = CGSize(width: textureSize.width * fitScale,
-                                 height: textureSize.height * fitScale)
+        if let textureSize = sprite.texture?.size(),
+           textureSize.width > 0, textureSize.height > 0 {
+
+            let scale = max(
+                size.width / textureSize.width,
+                size.height / textureSize.height
+            )
+
+            sprite.size = CGSize(
+                width: textureSize.width * scale,
+                height: textureSize.height / 2.2
+            )
         } else {
-            sprite.size = contentSize
+            sprite.size = size
         }
 
-        let mask = SKShapeNode(rectOf: contentSize)
-        mask.fillColor = .white
-        mask.strokeColor = .clear
+        sprite.position = CGPoint(
+            x: size.width / 2,
+            y: size.height / 2
+        )
 
-        let cropNode = SKCropNode()
-        cropNode.maskNode = mask
-        cropNode.addChild(sprite)
-
-        return cropNode
+        addChild(sprite)
     }
+
+    // MARK: - Play Button
 
     private func setupPlayButton() {
         playButton?.removeFromParent()
 
         let buttonSize = CGSize(width: 270, height: 64)
-        let rightMargin: CGFloat = 24
-        let bottomMargin: CGFloat = 24
 
         let button = makePlayButton()
-        button.alpha = 0
+
         button.position = CGPoint(
-            x: size.width - (buttonSize.width / 2) - rightMargin,
-            y: (buttonSize.height / 2) + bottomMargin
+            x: size.width - (buttonSize.width / 2) - 32,
+            y: (buttonSize.height / 2) + 32
         )
+
+        button.alpha = 0
         addChild(button)
         playButton = button
-    }
 
-    private func updateUIForCurrentIndex(animated: Bool) {
-        let targetX = -CGFloat(currentIndex) * size.width
-        carouselNode.removeAllActions()
+        let moveIn = SKAction.moveBy(x: -20, y: 0, duration: 0.2)
+        moveIn.timingMode = .easeOut
 
-        if animated {
-            let move = SKAction.moveTo(x: targetX, duration: 0.22)
-            move.timingMode = .easeOut
-            carouselNode.run(move)
-        } else {
-            carouselNode.position.x = targetX
-        }
+        let appear = SKAction.group([
+            SKAction.fadeIn(withDuration: 0.15),
+            moveIn
+        ])
 
-        let isLastSlide = currentIndex == comicNames.count - 1
-
-        guard let playButton else { return }
-        playButton.removeAllActions()
-        if isLastSlide {
-            playButton.run(.fadeAlpha(to: 1, duration: 0.2))
-        } else {
-            playButton.run(.fadeAlpha(to: 0, duration: 0.2))
-        }
+        button.run(appear)
     }
 
     private func makePlayButton() -> SKNode {
@@ -181,104 +214,39 @@ class OnboardingScene: SKScene {
         label.fontColor = .black
         label.verticalAlignmentMode = .center
         label.horizontalAlignmentMode = .center
-        label.position = CGPoint(x: 0, y: 0)
         label.name = "playButton"
 
         container.addChild(shadow)
         container.addChild(bg)
         container.addChild(label)
+
         return container
     }
 
-    private func nearestIndex(for xPosition: CGFloat) -> Int {
-        let rawIndex = Int(round(-xPosition / size.width))
-        return max(0, min(comicNames.count - 1, rawIndex))
-    }
-
-    private func clampedCarouselX(_ xPosition: CGFloat) -> CGFloat {
-        let minX = -CGFloat(comicNames.count - 1) * size.width
-        let maxX: CGFloat = 0
-
-        if xPosition > maxX {
-            return maxX + (xPosition - maxX) * 0.25
-        }
-
-        if xPosition < minX {
-            return minX + (xPosition - minX) * 0.25
-        }
-
-        return xPosition
-    }
+    // MARK: - Touch
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
 
-        hideSwipeHintBox()
+        switch state {
 
-        if currentIndex == comicNames.count - 1,
-           nodes(at: location).contains(where: { $0.name == "playButton" }) {
-            AudioService.shared.play("bumbo.mp3")
-            onComplete?()
-            return
-        }
+        case .narrative:
+            // Permite pular direto
+            goToImageScene()
 
-        dragTouch = touch
-        dragStartLocation = location
-        dragStartCarouselX = carouselNode.position.x
-        isDragging = false
-    }
-
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = dragTouch, touches.contains(touch) else { return }
-
-        hideSwipeHintBox()
-
-        let location = touch.location(in: self)
-        let deltaX = location.x - dragStartLocation.x
-        if abs(deltaX) > 3 { isDragging = true }
-
-        carouselNode.removeAllActions()
-        carouselNode.position.x = clampedCarouselX(dragStartCarouselX + deltaX)
-    }
-
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = dragTouch, touches.contains(touch) else { return }
-
-        let location = touch.location(in: self)
-        let deltaX = location.x - dragStartLocation.x
-
-        if abs(deltaX) > size.width * 0.12 {
-            if deltaX < 0 {
-                currentIndex = min(currentIndex + 1, comicNames.count - 1)
-            } else {
-                currentIndex = max(currentIndex - 1, 0)
+        case .image:
+            if nodes(at: location).contains(where: { $0.name == "playButton" }) {
+                AudioService.shared.play("bumbo.mp3")
+                onComplete?()
             }
-        } else {
-            currentIndex = nearestIndex(for: carouselNode.position.x)
         }
-
-        updateUIForCurrentIndex(animated: true)
-
-        dragTouch = nil
-        isDragging = false
     }
+}
 
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = dragTouch, touches.contains(touch) else { return }
-        updateUIForCurrentIndex(animated: true)
-        dragTouch = nil
-        isDragging = false
-    }
 
-    private func hideSwipeHintBox() {
-        guard let swipeHintBox else { return }
-        self.swipeHintBox = nil
 
-        swipeHintBox.removeAllActions()
-        swipeHintBox.run(SKAction.sequence([
-            SKAction.fadeOut(withDuration: 0.15),
-            SKAction.removeFromParent()
-        ]))
-    }
+#Preview {
+    // Forçamos a cena inicial a ser o Onboarding para ver no Canvas
+    GameView(initialSceneType: OnboardingScene.self)
 }

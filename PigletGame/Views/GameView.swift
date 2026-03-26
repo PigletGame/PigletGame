@@ -24,7 +24,8 @@ struct GameView: View {
     @State private var currentScene: SKScene?
     @State private var postOnboardingStep: PostOnboardingStep = .none
     @State private var shouldRunPostOnboardingTips = false
-    
+    @State private var housesOwned: Int = 10
+
     var initialSceneType: SKScene.Type = GameScene.self
 
     var body: some View {
@@ -46,15 +47,16 @@ struct GameView: View {
             // In your body:
             if showRankUp {
                 RankUpOverlay(rank: currentRank)
+                    .padding(.top, 60)
                     .transition(.move(edge: .top).combined(with: .opacity))
-                    .onTapGesture {
-                        withAnimation(.easeIn(duration: 0.3)) {
-                            showRankUp = false
-                        }
-                    }
+//                    .onTapGesture {
+//                        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+//                            showRankUp = false
+//                        }
+//                    }
                     .task {
-                        try? await Task.sleep(for: .seconds(2.5))
-                        withAnimation(.easeIn(duration: 0.3)) {
+                        try? await Task.sleep(for: .seconds(1))
+                        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
                             showRankUp = false
                         }
                     }
@@ -244,5 +246,6 @@ struct GameView: View {
 }
 
 #Preview {
-    GameView()
+    // Forçamos a cena inicial a ser o Onboarding para ver no Canvas
+    GameView(initialSceneType: OnboardingScene.self)
 }

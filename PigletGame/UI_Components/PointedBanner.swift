@@ -40,3 +40,7 @@ struct PointedBanner: Shape {
         return path
     }
 }
+
+#Preview{
+    PointedBanner()
+}

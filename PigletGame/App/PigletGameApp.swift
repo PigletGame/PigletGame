@@ -50,3 +50,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         .landscape
     }
 }
+
+#Preview{
+    MainMenu()
+}

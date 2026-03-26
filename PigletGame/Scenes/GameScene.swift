@@ -25,13 +25,11 @@ class GameScene: SKScene {
     private var difficultySystem: DifficultySystem!
 
     // MARK: – State
-
     private var score:       Int = 0
     private var killCount:   Int = 0
     private var coinCount:   Int = 0
     private var elapsedTime: TimeInterval = 0
     private var lastUpdateTime: TimeInterval = 0
-//    private var scoreAccum:  TimeInterval = 0
     private var isGameOver   = false
     private var isPausedManually = false {
         didSet {
@@ -39,8 +37,8 @@ class GameScene: SKScene {
         }
     }
     private var isResumingGame = false
+    private var purchasedCount: Int = GameDataStore.shared.purchasedSlotsCount()
 
-    // map config
     let tileWidth: CGFloat = 16
     let mapWidthInTiles = 30
     let mapHeightInTiles = 30
@@ -69,7 +67,6 @@ class GameScene: SKScene {
     }
 
     // MARK: – Lifecycle
-
     override func didMove(to view: SKView) {
         backgroundColor = .darkGray
         view.isMultipleTouchEnabled = true
@@ -85,8 +82,8 @@ class GameScene: SKScene {
         setupPlayer()
         setupHUD()
         setupSystems()
-        
-        // Music transition
+        spawnHousesAroundFence(count: purchasedCount)
+
         AudioService.shared.stop("menu.mp3")
         AudioService.shared.play("inGameCombat.mp3", loop: true, volume: 0.07)
         if isPaused {
@@ -96,7 +93,6 @@ class GameScene: SKScene {
 
     // MARK: – Setup
     private func setupLevel() {
-        // Create noise for terrain distribution
         let noiseSource = GKPerlinNoiseSource(frequency: 0.2, octaveCount: 3, persistence: 0.5, lacunarity: 2.0, seed: Int32.random(in: 0...1000))
         let noise = GKNoise(noiseSource)
         let noiseMap = GKNoiseMap(noise, size: vector_double2(Double(mapWidthInTiles + 2 * mapPadding), Double(mapHeightInTiles + 2 * mapPadding)),
@@ -176,16 +172,38 @@ class GameScene: SKScene {
         }
     }
 
+//    private func setupPlayer() {
+//        player = PlayerEntity(
+//            position: CGPoint(x: mapSize.width / 2, y: mapSize.height / 2),
+//            leftJoystick: leftJoystick,
+//            rightJoystick: rightJoystick
+//        ) { [weak self] pos, dir in
+//            self?.combatSystem.tryFirePlayerBullet(direction: dir, position: pos, at: CFAbsoluteTimeGetCurrent())
+//        }
+//        entityManager.addEntity(player)
+//    }
+
     private func setupPlayer() {
+        let startPosition = CGPoint(
+            x: mapSize.width / 2,
+            y: mapSize.height / 2
+        )
+
         player = PlayerEntity(
-            position: CGPoint(x: mapSize.width / 2, y: mapSize.height / 2),
+            position: startPosition,
             leftJoystick: leftJoystick,
             rightJoystick: rightJoystick
         ) { [weak self] pos, dir in
-            // handled by combatSystem or directly
-            self?.combatSystem.tryFirePlayerBullet(direction: dir, position: pos, at: CFAbsoluteTimeGetCurrent())
+            self?.combatSystem.tryFirePlayerBullet(
+                direction: dir,
+                position: pos,
+                at: CFAbsoluteTimeGetCurrent()
+            )
         }
+
         entityManager.addEntity(player)
+
+        cameraNode.position = startPosition
     }
 
     private func setupHUD() {
@@ -226,6 +244,70 @@ class GameScene: SKScene {
         rightJoystick.zPosition = 99
         rightJoystick.deactivate()
         cameraNode.addChild(rightJoystick)
+    }
+
+    private func spawnHousesAroundFence(count: Int) {
+        guard count > 0 else { return }
+
+        let spacing = 3
+        let positions = generateHousePositions(spacing: spacing)
+
+        for i in 0..<min(count, positions.count) {
+            let (tileX, tileY) = positions[i]
+
+            let house = SKSpriteNode(imageNamed: "house")
+            house.texture?.filteringMode = .nearest
+            house.size = CGSize(width: tileWidth * 2.5, height: tileWidth * 2.5)
+
+            house.position = CGPoint(
+                x: CGFloat(tileX) * tileWidth + tileWidth / 2,
+                y: CGFloat(tileY) * tileWidth + tileWidth / 2
+            )
+
+            house.zPosition = 1
+            let shadow = SKShapeNode(ellipseOf: CGSize(width: tileWidth * 1.6, height: tileWidth * 0.6))
+            shadow.fillColor = .black
+            shadow.alpha = 0.3
+            shadow.position = CGPoint(x: 0, y: -tileWidth * 0.9)
+            shadow.zPosition = -1
+
+            house.addChild(shadow)
+            worldNode.addChild(house)
+        }
+    }
+
+
+    private func generateHousePositions(spacing: Int) -> [(Int, Int)] {
+        var positions: [(Int, Int)] = []
+
+        let maxLayers = 20
+
+        for layer in 1...maxLayers {
+
+            let offset = layer * 3
+
+            // TOP
+            for x in stride(from: 0, to: mapWidthInTiles, by: spacing) {
+                positions.append((x, mapHeightInTiles + 2 + offset))
+            }
+
+            // RIGHT
+            for y in stride(from: 0, to: mapHeightInTiles, by: spacing) {
+                positions.append((mapWidthInTiles + 2 + offset, y))
+            }
+
+            // BOTTOM
+            for x in stride(from: mapWidthInTiles - 1, through: 0, by: -spacing) {
+                positions.append((x, -3 - offset))
+            }
+
+            // LEFT
+            for y in stride(from: mapHeightInTiles - 1, through: 0, by: -spacing) {
+                positions.append((-2 - offset, y))
+            }
+        }
+
+        return positions
     }
 
     // MARK: - Touches
@@ -329,7 +411,8 @@ class GameScene: SKScene {
                    kills: killCount,
                    coins: coinCount,
                    lives: player.health.lives,
-                   hasShield: player.shield.isActive)
+                   hasShield: player.shield.isActive,
+                   houses: purchasedCount)
     }
 
     // MARK: – Update Loop
