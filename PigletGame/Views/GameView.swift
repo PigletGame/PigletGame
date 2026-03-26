@@ -244,5 +244,6 @@ struct GameView: View {
 }
 
 #Preview {
-    GameView()
+    // Forçamos a cena inicial a ser o Onboarding para ver no Canvas
+    GameView(initialSceneType: OnboardingScene.self)
 }

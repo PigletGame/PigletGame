@@ -10,7 +10,8 @@ import SwiftUI
 struct VillageView: View {
     @Environment(\.dismiss) private var dismiss
 
-    @State private var purchasedCount: Int = GameDataStore.shared.purchasedSlotsCount()
+//    @State private var purchasedCount: Int = GameDataStore.shared.purchasedSlotsCount()
+    private var purchasedCount: Int = 10
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 6)
 
@@ -67,21 +68,44 @@ struct VillageView: View {
             ])
         )
         .navigationBarHidden(true)
-        .task { purchasedCount = GameDataStore.shared.purchasedSlotsCount() }
+//        .task { purchasedCount = GameDataStore.shared.purchasedSlotsCount() }
     }
 }
 
 private struct HouseCell: View {
     var body: some View {
-        RoundedRectangle(cornerRadius: 12)
-            .fill(Color(hex: "6B0101"))
-            .aspectRatio(1, contentMode: .fit)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.black.opacity(0.4), lineWidth: 1.5)
-            )
+        ZStack {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color.black)
+                .frame(width: 99, height: 79)
+                .offset(x: 3, y: 6)
+
+            // Fundo
+            RoundedRectangle(cornerRadius: 8)
+                .fill(StyleGuide.Colors.darkRed)
+                .frame(width: 94, height: 75)
+
+            // Ícone central
+            Image("house") // house.svg no Assets
+                .resizable()
+                .scaledToFit()
+                .padding(6)
+//                .frame(width: , height: 28)
+                .foregroundColor(.white)
+
+            // Borda amarela
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(StyleGuide.Colors.yellow, lineWidth: 3)
+                .frame(width: 94, height: 75)
+        }
+        .aspectRatio(1, contentMode: .fit)
     }
 }
+
+//#Preview {
+//    VillageView()
+//}
+// 
 
 #Preview {
     VillageView()

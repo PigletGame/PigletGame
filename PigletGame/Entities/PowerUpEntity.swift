@@ -54,7 +54,6 @@ class PowerUpEntity: GKEntity {
         visualComp.node.position = pos
         addComponent(visualComp)
         
-        // Unify explosion effect
         addComponent(LootAnimationComponent(lifetime: PowerUpEntity.lifetime))
     }
 
