@@ -93,7 +93,6 @@ class GameScene: SKScene {
 
     // MARK: – Setup
     private func setupLevel() {
-        // Create noise for terrain distribution
         let noiseSource = GKPerlinNoiseSource(frequency: 0.2, octaveCount: 3, persistence: 0.5, lacunarity: 2.0, seed: Int32.random(in: 0...1000))
         let noise = GKNoise(noiseSource)
         let noiseMap = GKNoiseMap(noise, size: vector_double2(Double(mapWidthInTiles + 2 * mapPadding), Double(mapHeightInTiles + 2 * mapPadding)),
@@ -173,15 +172,38 @@ class GameScene: SKScene {
         }
     }
 
+//    private func setupPlayer() {
+//        player = PlayerEntity(
+//            position: CGPoint(x: mapSize.width / 2, y: mapSize.height / 2),
+//            leftJoystick: leftJoystick,
+//            rightJoystick: rightJoystick
+//        ) { [weak self] pos, dir in
+//            self?.combatSystem.tryFirePlayerBullet(direction: dir, position: pos, at: CFAbsoluteTimeGetCurrent())
+//        }
+//        entityManager.addEntity(player)
+//    }
+
     private func setupPlayer() {
+        let startPosition = CGPoint(
+            x: mapSize.width / 2,
+            y: mapSize.height / 2
+        )
+
         player = PlayerEntity(
-            position: CGPoint(x: mapSize.width / 2, y: mapSize.height / 2),
+            position: startPosition,
             leftJoystick: leftJoystick,
             rightJoystick: rightJoystick
         ) { [weak self] pos, dir in
-            self?.combatSystem.tryFirePlayerBullet(direction: dir, position: pos, at: CFAbsoluteTimeGetCurrent())
+            self?.combatSystem.tryFirePlayerBullet(
+                direction: dir,
+                position: pos,
+                at: CFAbsoluteTimeGetCurrent()
+            )
         }
+
         entityManager.addEntity(player)
+
+        cameraNode.position = startPosition
     }
 
     private func setupHUD() {

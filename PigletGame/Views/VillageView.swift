@@ -48,15 +48,19 @@ struct VillageView: View {
                 }
                 .padding(.top, -50)
 
-                ScrollView(.vertical, showsIndicators: false) {
-                    LazyVGrid(columns: columns, spacing: 12) {
-                        ForEach(0..<purchasedCount, id: \.self) { _ in
-                            HouseCell()
+                if purchasedCount == 0 {
+                    EmptyVillageView()
+                } else {
+                    ScrollView(.vertical, showsIndicators: false) {
+                        LazyVGrid(columns: columns, spacing: 12) {
+                            ForEach(0..<purchasedCount, id: \.self) { _ in
+                                HouseCell()
+                            }
                         }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 24)
+                        .padding(.bottom, 40)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 24)
-                    .padding(.bottom, 40)
                 }
             }
         }
@@ -68,6 +72,42 @@ struct VillageView: View {
         )
         .navigationBarHidden(true)
         .task { purchasedCount = GameDataStore.shared.purchasedSlotsCount() }
+    }
+}
+
+// MARK: - Empty State
+private struct EmptyVillageView: View {
+    @State private var isAnimating = false
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Spacer()
+
+            Image("house")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 72, height: 72)
+                .opacity(0.35)
+                .scaleEffect(isAnimating ? 1.05 : 0.95)
+                .animation(
+                    .easeInOut(duration: 1.4).repeatForever(autoreverses: true),
+                    value: isAnimating
+                )
+
+            Text("No houses yet")
+                .font(.custom("AvenirNext-Heavy", size: 18))
+                .foregroundColor(.white.opacity(0.9))
+
+            Text("Kill the tigers, earn coins\nand buy your houses")
+                .font(.custom("AvenirNext-Medium", size: 13))
+                .foregroundColor(.white.opacity(0.55))
+                .multilineTextAlignment(.center)
+                .lineSpacing(4)
+
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
+        .onAppear { isAnimating = true }
     }
 }
 

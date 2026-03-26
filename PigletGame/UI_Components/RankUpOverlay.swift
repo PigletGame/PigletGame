@@ -11,21 +11,15 @@ struct RankUpOverlay: View {
     var rank: Int
 
     var body: some View {
-        VStack(spacing: 16) {
-            Image(rank >= 10 ? .HUD.rankUp3 : rank >= 5 ? .HUD.rankUp2 : .HUD.rankUp1)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 120)
+        ZStack {
 
-            VStack(spacing: -16) {
+            VStack(spacing: 0) {
                 Text("RANK UP")
-                    .font(Font.custom("Geist-Bold", size: 22))
-                    .multilineTextAlignment(.center)
+                    .font(Font.custom("Geist-Bold", size: 16))
                     .foregroundColor(.white)
 
                 Text(rank.description)
-                    .font(Font.custom("Geist-Bold", size: 82).weight(.bold))
-                    .multilineTextAlignment(.center)
+                    .font(Font.custom("Geist-Bold", size: 56))
                     .foregroundStyle(
                         Gradient(colors: [
                             Color(hex: "FFD700"),
@@ -33,25 +27,29 @@ struct RankUpOverlay: View {
                         ])
                     )
             }
+            .padding(.top, 40)
+            .padding(.bottom, 32)
+            .frame(width: 110)
+            .background(
+                PointedBanner()
+                    .foregroundStyle(rank >= 10 ? Color(hex: "570508") : Color(hex: "3F0303"))
+                    .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+                    .overlay(
+                        PointedBanner()
+                            .stroke(Color(red: 0.98, green: 0.35, blue: 0), lineWidth: 4)
+                    )
+                    .overlay(
+                        PointedBanner()
+                            .stroke(.black.opacity(0.2), lineWidth: 4)
+                    )
+            )
+
+            Image(rank >= 10 ? .HUD.rankUp3 : rank >= 5 ? .HUD.rankUp2 : .HUD.rankUp1)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 120)
+                .offset(y: -90)
         }
-        .padding(.horizontal, 6)
-        .padding(.top, 32)
-        .padding(.bottom, 8)
-        .frame(width: 132)
-        .background(
-            PointedBanner()
-        
-                .foregroundStyle(rank >= 10 ? Color(hex: "570508") : Color(hex: "3F0303"))
-                .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
-                .overlay(
-                    PointedBanner()
-                        .stroke(Color(red: 0.98, green: 0.35, blue: 0), lineWidth: 6)
-                )
-                .overlay(
-                    PointedBanner()
-                        .stroke(.black.opacity(0.2), lineWidth: 6)
-                )
-        )
     }
 }
 
