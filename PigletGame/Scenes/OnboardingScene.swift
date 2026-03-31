@@ -54,9 +54,9 @@ class OnboardingScene: SKScene {
         backgroundColor = SKColor(red: 0.65, green: 0.01, blue: 0.01, alpha: 1)
 
         let texts = [
-            "THE TIGERS DESTROYED YOUR VILLAGE",
-            "THEY TOOK EVERYTHING",
-            "TAKE IT BACK"
+            String(localized: "THE TIGERS DESTROYED YOUR VILLAGE"),
+            String(localized: "THEY TOOK EVERYTHING"),
+            String(localized: "TAKE IT BACK")
         ]
 
         let startY = size.height * 0.7
@@ -209,7 +209,7 @@ class OnboardingScene: SKScene {
         bg.name = "playButton"
 
         let label = SKLabelNode(fontNamed: "Geist-Black")
-        label.text = "Play"
+        label.text = String(localized: "Play")
         label.fontSize = 24
         label.fontColor = .black
         label.verticalAlignmentMode = .center

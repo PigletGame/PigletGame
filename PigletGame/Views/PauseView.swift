@@ -20,7 +20,7 @@ struct PauseView: View {
                     .foregroundStyle(StyleGuide.Colors.wine)
                     .frame(height: 95)
                     .overlay {
-                        Image(.Menu.paused)
+                        Image(String(localized: "ASSET_PAUSED"))
                             .frame(height: 90)
                             .offset(y: 45)
                     }
@@ -34,7 +34,7 @@ struct PauseView: View {
                     .frame(height: 95)
                     .overlay(alignment: .top) {
                         HStack {
-                            PigletButton(size: .medium, text: "Give up", icon: "rectangle.portrait.and.arrow.right") {
+                            PigletButton(size: .medium, text: String(localized: "Give up"), icon: "rectangle.portrait.and.arrow.right") {
                                 AudioService.shared.stop("inGameCombat.mp3")
                                 withAnimation(.spring(response: 0.5, dampingFraction: 0.82)) {
                                     isVisible = false
@@ -45,7 +45,7 @@ struct PauseView: View {
                                 }
                             }
 
-                            PigletButton(size: .medium, text: "Resume", icon: "poweroutlet.type.a.fill", color: .yellow) {
+                            PigletButton(size: .medium, text: String(localized: "Resume"), icon: "poweroutlet.type.a.fill", color: .yellow) {
                                 withAnimation(.spring(response: 0.5, dampingFraction: 0.82)) {
                                     isVisible = false
                                 }

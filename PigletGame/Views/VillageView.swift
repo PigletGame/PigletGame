@@ -38,10 +38,10 @@ struct VillageView: View {
                 .padding(.top, 32)
 
                 VStack(spacing: 0) {
-                    Text("THE")
+                    Text(String(localized: "THE (HOUSES)", defaultValue: "THE"))
                         .font(.custom("AvenirNext-Heavy", size: 14))
                         .foregroundColor(.white)
-                    Text("HOUSES")
+                    Text(String(localized: "HOUSES"))
                         .font(.custom("AvenirNext-Heavy", size: 34))
                         .foregroundColor(.black)
                         .padding(.top, -10)
@@ -94,11 +94,11 @@ private struct EmptyVillageView: View {
                     value: isAnimating
                 )
 
-            Text("No houses yet")
+            Text(String(localized: "No houses yet"))
                 .font(.custom("AvenirNext-Heavy", size: 18))
                 .foregroundColor(.white.opacity(0.9))
 
-            Text("Kill the tigers, earn coins\nand buy your houses")
+            Text(String(localized: "Kill the tigers, earn coins\nand buy your houses"))
                 .font(.custom("AvenirNext-Medium", size: 13))
                 .foregroundColor(.white.opacity(0.55))
                 .multilineTextAlignment(.center)

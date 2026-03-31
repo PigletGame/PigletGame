@@ -29,7 +29,7 @@ struct GameView: View {
     var initialSceneType: SKScene.Type = GameScene.self
 
     var body: some View {
-        ZStack(alignment: .top) {
+        ZStack { // Remove alignment: .top
             GeometryReader { geometry in
                 if let scene = currentScene {
                     SpriteView(scene: scene)
@@ -47,13 +47,7 @@ struct GameView: View {
             // In your body:
             if showRankUp {
                 RankUpOverlay(rank: currentRank)
-                    .padding(.top, 60)
                     .transition(.move(edge: .top).combined(with: .opacity))
-//                    .onTapGesture {
-//                        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-//                            showRankUp = false
-//                        }
-//                    }
                     .task {
                         try? await Task.sleep(for: .seconds(1))
                         withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
@@ -162,7 +156,7 @@ struct GameView: View {
                     .font(.custom("Geist-Black", size: 20))
                     .padding(.horizontal, 40)
 
-                Text("Tap to continue")
+                Text(String(localized: "Tap to continue"))
                     .foregroundStyle(.white)
                     .font(.custom("Geist-Heavy", size: 18))
             }
@@ -180,9 +174,9 @@ struct GameView: View {
     private var postOnboardingMessage: String {
         switch postOnboardingStep {
         case .move:
-            return "Drag anywhere on the left side to move the character"
+            return String(localized: "Drag anywhere on the left side to move the character")
         case .shoot:
-            return "Drag anywhere on the right side to shoot"
+            return String(localized: "Drag anywhere on the right side to shoot")
         case .none:
             return ""
         }

@@ -47,11 +47,11 @@ struct VillageHubView: View {
                 .padding(.top, 32)
 
                 VStack(spacing: 0) {
-                    Text("THE")
+                    Text(String(localized: "THE (VILLAGE)", defaultValue: "THE"))
                         .font(.custom("AvenirNext-Heavy", size: 14))
                         .foregroundColor(.white)
 
-                    Text("VILLAGE")
+                    Text(String(localized: "VILLAGE"))
                         .font(.custom("AvenirNext-Heavy", size: 34))
                         .foregroundColor(.black)
                         .padding(.top, -10)
@@ -66,7 +66,7 @@ struct VillageHubView: View {
                 VStack(spacing: 16) {
                     PigletButton(
                         size: .largeTwoLine,
-                        text: "Buy House",
+                        text: String(localized: "Buy House"),
                         icon: "house.fill",
                         color: canAfford ? .yellow : .red,
                         price: nextCost) {
@@ -76,7 +76,7 @@ struct VillageHubView: View {
                     .disabled(!canAfford)
                     .opacity(canAfford ? 1 : 0.5)
 
-                    PigletButton(size: .smallWide, text: "See the Village", icon: "house.lodge.fill") {
+                    PigletButton(size: .smallWide, text: String(localized: "See the Village"), icon: "house.lodge.fill") {
                         showVillage = true
                     }
                 }
