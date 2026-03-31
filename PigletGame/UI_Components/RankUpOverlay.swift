@@ -14,9 +14,10 @@ struct RankUpOverlay: View {
         ZStack {
 
             VStack(spacing: 0) {
-                Text("RANK UP")
+                Text(String(localized: "RANK UP"))
                     .font(Font.custom("Geist-Bold", size: 16))
                     .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
 
                 Text(rank.description)
                     .font(Font.custom("Geist-Bold", size: 56))
@@ -26,9 +27,10 @@ struct RankUpOverlay: View {
                             Color(hex: "FF9124"),
                         ])
                     )
+                    .multilineTextAlignment(.center)
             }
-            .padding(.top, 40)
-            .padding(.bottom, 32)
+            .padding(.top, 36)
+            .padding(.bottom, 36)
             .frame(width: 110)
             .background(
                 PointedBanner()

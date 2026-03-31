@@ -123,7 +123,7 @@ struct GameOverView: View {
         VStack(alignment: .trailing) {
             HStack(alignment: .center) {
 
-                Image("GameOver/youDied")
+                Image(String(localized: "ASSET_YOU_DIED"))
                     .resizable()
                     .scaledToFit()
                     .frame(width: 295)
@@ -149,7 +149,7 @@ struct GameOverView: View {
                             Image(systemName: "sparkles")
                                 .font(.system(size: 14, weight: .bold))
 
-                            Text("x2 REWARD APPLIED")
+                            Text(String(localized: "x2 REWARD APPLIED"))
                                 .font(.custom("Geist-Bold", size: 14))
                                 .tracking(0.5)
                         }
@@ -172,7 +172,7 @@ struct GameOverView: View {
                     HStack(spacing: 16) {
                         PigletButton(
                             size: .medium,
-                            text: "Back to Menu",
+                            text: String(localized: "Back to Menu"),
                             icon: "arrowshape.turn.up.backward.fill"
                         ) {
                             saveProgressIfNeeded()
@@ -181,7 +181,7 @@ struct GameOverView: View {
 
                         PigletButton(
                             size: .medium,
-                            text: "Play Again",
+                            text: String(localized: "Play Again"),
                             icon: "poweroutlet.type.a.fill",
                             color: .orange
                         ) {
@@ -192,7 +192,7 @@ struct GameOverView: View {
 
                     PigletButton(
                         size: .extraLarge,
-                        text: didUseReward ? "Reward Used" : "Double your Coins",
+                        text: didUseReward ? String(localized: "Reward Used") : String(localized: "Double your Coins"),
                         icon: "play.rectangle.fill",
                         color: .yellow
                     ) {

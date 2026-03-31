@@ -50,13 +50,13 @@ class ItemPickupSystem {
         case .life:
             player.health.heal()
             onHUDUpdate()
-            floatText("+HEALTH", at: pos,
+            floatText(String(localized: "+HEALTH"), at: pos,
                       color: SKColor(red: 1, green: 0.3, blue: 0.3, alpha: 1))
         case .shield:
             player.shield.activate()
             AudioService.shared.play("shield.mp3", volume: 0.3)
             onHUDUpdate()
-            floatText("+SHIELD", at: pos, color: .cyan)
+            floatText(String(localized: "+SHIELD"), at: pos, color: .cyan)
         }
     }
 

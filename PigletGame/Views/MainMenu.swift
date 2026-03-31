@@ -80,16 +80,16 @@ struct MainMenu: View {
                 Spacer()
 
                 VStack(spacing: 16) {
-                    PigletButton(size: .large, text: "Play", icon: "poweroutlet.type.a.fill", color: .yellow) {
+                    PigletButton(size: .large, text: String(localized: "Play"), icon: "poweroutlet.type.a.fill", color: .yellow) {
                         showGame = true
                     }
 
                     HStack(spacing: 16) {
-                        PigletButton(size: .small, text: "Village", icon: "house.fill") {
+                        PigletButton(size: .small, text: String(localized: "Village"), icon: "house.fill") {
                             showVillage = true
                         }
 
-                        PigletButton(size: .small, text: "Ranking", icon: "trophy.fill") {
+                        PigletButton(size: .small, text: String(localized: "Ranking"), icon: "trophy.fill") {
                             GameCenterManager.shared.showLeaderboard()
                         }
                     }
