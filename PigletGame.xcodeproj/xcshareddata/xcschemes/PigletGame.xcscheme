@@ -16,8 +16,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "5C31ADA22F648286006AF862"
-               BuildableName = "PigletGame.app"
-               BlueprintName = "PigletGame"
+               BuildableName = "KILL THE TIGER.app"
+               BlueprintName = "KILL THE TIGER"
                ReferencedContainer = "container:PigletGame.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,8 +45,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "5C31ADA22F648286006AF862"
-            BuildableName = "PigletGame.app"
-            BlueprintName = "PigletGame"
+            BuildableName = "KILL THE TIGER.app"
+            BlueprintName = "KILL THE TIGER"
             ReferencedContainer = "container:PigletGame.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -62,8 +62,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "5C31ADA22F648286006AF862"
-            BuildableName = "PigletGame.app"
-            BlueprintName = "PigletGame"
+            BuildableName = "KILL THE TIGER.app"
+            BlueprintName = "KILL THE TIGER"
             ReferencedContainer = "container:PigletGame.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
