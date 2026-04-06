@@ -14,11 +14,11 @@ class AdManager: NSObject, FullScreenContentDelegate {
     private var rewardedAd: RewardedAd?
     private var pendingCompletion: (() -> Void)?
 
-    #if DEBUG
+//    #if DEBUG
     private let adUnitID = "ca-app-pub-3940256099942544/1712485313"
-    #else
-    private let adUnitID = "ca-app-pub-3283949901031820/1706911134"
-    #endif
+//    #else
+//    private let adUnitID = "ca-app-pub-3283949901031820/1706911134"
+//    #endif
 
     func loadAd() {
         guard rewardedAd == nil else { return }

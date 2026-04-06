@@ -11,16 +11,16 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		5C31ADA32F648286006AF862 /* PigletGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PigletGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5C31ADA32F648286006AF862 /* KILL THE TIGER.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "KILL THE TIGER.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		AD7D9D942F6879A400C1DB25 /* Exceptions for "PigletGame" folder in "PigletGame" target */ = {
+		AD7D9D942F6879A400C1DB25 /* Exceptions for "PigletGame" folder in "KILL THE TIGER" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 5C31ADA22F648286006AF862 /* PigletGame */;
+			target = 5C31ADA22F648286006AF862 /* KILL THE TIGER */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -28,7 +28,7 @@
 		5C31ADA52F648286006AF862 /* PigletGame */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				AD7D9D942F6879A400C1DB25 /* Exceptions for "PigletGame" folder in "PigletGame" target */,
+				AD7D9D942F6879A400C1DB25 /* Exceptions for "PigletGame" folder in "KILL THE TIGER" target */,
 			);
 			path = PigletGame;
 			sourceTree = "<group>";
@@ -58,7 +58,7 @@
 		5C31ADA42F648286006AF862 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				5C31ADA32F648286006AF862 /* PigletGame.app */,
+				5C31ADA32F648286006AF862 /* KILL THE TIGER.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -66,9 +66,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		5C31ADA22F648286006AF862 /* PigletGame */ = {
+		5C31ADA22F648286006AF862 /* KILL THE TIGER */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5C31ADAE2F648288006AF862 /* Build configuration list for PBXNativeTarget "PigletGame" */;
+			buildConfigurationList = 5C31ADAE2F648288006AF862 /* Build configuration list for PBXNativeTarget "KILL THE TIGER" */;
 			buildPhases = (
 				5C31AD9F2F648286006AF862 /* Sources */,
 				5C31ADA02F648286006AF862 /* Frameworks */,
@@ -81,12 +81,12 @@
 			fileSystemSynchronizedGroups = (
 				5C31ADA52F648286006AF862 /* PigletGame */,
 			);
-			name = PigletGame;
+			name = "KILL THE TIGER";
 			packageProductDependencies = (
 				AD7D9E542F69D5ED00C1DB25 /* GoogleMobileAds */,
 			);
 			productName = PigletGame;
-			productReference = 5C31ADA32F648286006AF862 /* PigletGame.app */;
+			productReference = 5C31ADA32F648286006AF862 /* KILL THE TIGER.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -122,7 +122,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				5C31ADA22F648286006AF862 /* PigletGame */,
+				5C31ADA22F648286006AF862 /* KILL THE TIGER */,
 			);
 		};
 /* End PBXProject section */
@@ -285,6 +285,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PigletGame/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "KILL THE TIGER";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -330,6 +331,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PigletGame/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "KILL THE TIGER";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -372,7 +374,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5C31ADAE2F648288006AF862 /* Build configuration list for PBXNativeTarget "PigletGame" */ = {
+		5C31ADAE2F648288006AF862 /* Build configuration list for PBXNativeTarget "KILL THE TIGER" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5C31ADAF2F648288006AF862 /* Debug */,

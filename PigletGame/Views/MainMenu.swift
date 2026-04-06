@@ -38,6 +38,8 @@ struct MainMenu: View {
                 isAudioMuted = AudioService.shared.isAudioMuted
                 showMenu = true
                 AudioService.shared.play("menu.mp3", loop: true, volume: 0.1)
+
+                AdManager.shared.loadAd()
             }
     }
 
